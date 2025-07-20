@@ -1,0 +1,532 @@
+// Real Estate Crowdfunding Investment Platform
+// Comprehensive Prisma Schema with Payment & KYC Integration
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== USER MANAGEMENT ====================
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  password          String
+  firstName         String?
+  lastName          String?
+  phone             String?
+  dateOfBirth       DateTime?
+  nationality       String?
+  address           Json?     // Full address object
+  role              UserRole  @default(INVESTOR)
+  kycStatus         KYCStatus @default(NOT_STARTED)
+  kycSessionId      String?   // Didit session ID
+  kycCompletedAt    DateTime?
+  isEmailVerified   Boolean   @default(false)
+  emailVerifiedAt   DateTime?
+  isPhoneVerified   Boolean   @default(false)
+  phoneVerifiedAt   DateTime?
+  investmentLimit   Decimal?  @default(0)
+  totalInvested     Decimal   @default(0)
+  jurisdictionCode  String?   // MX, ES, FR, etc.
+  preferredCurrency String    @default("EUR")
+  taxId             String?   // Encrypted tax ID for compliance
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  lastLoginAt       DateTime?
+  
+  // Security fields
+  passwordResetToken     String?
+  passwordResetExpires   DateTime?
+  emailVerificationToken String?
+  loginAttempts          Int      @default(0)
+  lockUntil              DateTime?
+  
+  // Relations
+  sessions            Session[]
+  investments         Investment[]
+  kycDocuments        KYCDocument[]
+  auditLogs           AuditLog[]
+  projectsOwned       Project[]     @relation("ProjectOwner")
+  wallets             Wallet[]
+  paymentMethods      PaymentMethod[]
+  notifications       Notification[]
+  kycVerifications    KYCVerification[]
+  favoriteProjects    UserFavorite[]
+  
+  @@map("users")
+}
+
+enum UserRole {
+  INVESTOR
+  DEVELOPER
+  ADMIN
+  MODERATOR
+}
+
+enum KYCStatus {
+  NOT_STARTED
+  PENDING
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+// ==================== AUTHENTICATION ====================
+
+model Session {
+  id                String   @id @default(cuid())
+  userId            String
+  refreshToken      String   @unique
+  refreshTokenHash  String
+  userAgent         String?
+  ipAddress         String?
+  isActive          Boolean  @default(true)
+  expiresAt         DateTime
+  createdAt         DateTime @default(now())
+  lastUsedAt        DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("sessions")
+}
+
+// ==================== KYC INTEGRATION ====================
+
+model KYCVerification {
+  id                String        @id @default(cuid())
+  userId            String
+  sessionId         String        @unique // Didit session ID
+  status            KYCStatus     @default(PENDING)
+  verificationType  String        // basic, enhanced, corporate
+  documentTypes     String[]      // Array of document types verified
+  verificationData  Json?         // Didit response data
+  riskScore         Float?        // Risk assessment score
+  rejectionReason   String?
+  expiresAt         DateTime?     // KYC expiration date
+  verifiedAt        DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("kyc_verifications")
+}
+
+model KYCDocument {
+  id              String    @id @default(cuid())
+  userId          String
+  documentType    String    // passport, drivers_license, utility_bill, bank_statement
+  documentUrl     String    // Encrypted storage URL
+  fileName        String
+  fileSize        Int
+  mimeType        String
+  status          String    @default("PENDING") // PENDING, APPROVED, REJECTED
+  rejectionReason String?
+  uploadedAt      DateTime  @default(now())
+  reviewedAt      DateTime?
+  reviewedBy      String?
+  expiresAt       DateTime? // For documents with expiration
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("kyc_documents")
+}
+
+// ==================== PROJECT MANAGEMENT ====================
+
+model Project {
+  id                String        @id @default(cuid())
+  title             String
+  description       String
+  shortDescription  String?
+  location          Json          // Full location object with coordinates
+  ownerId           String        // Developer/owner
+  status            ProjectStatus @default(DRAFT)
+  projectType       String        // residential, commercial, mixed_use, land
+  
+  // Financial details
+  totalValue        Decimal
+  targetFunding     Decimal
+  currentFunding    Decimal       @default(0)
+  minInvestment     Decimal
+  maxInvestment     Decimal?
+  expectedReturn    Decimal       // Annual percentage
+  investmentTerm    Int           // in months
+  distributionType  String        // monthly, quarterly, annual, exit_only
+  
+  // Project timeline
+  fundingDeadline   DateTime
+  constructionStart DateTime?
+  expectedCompletion DateTime?
+  actualCompletion  DateTime?
+  
+  // Media and documentation
+  imageUrls         String[]      // Array of image URLs
+  documentUrls      String[]      // Legal docs, prospectus, etc.
+  videoUrl          String?
+  virtualTourUrl    String?
+  
+  // Legal and compliance
+  legalStructure    String?       // SPV, Partnership, etc.
+  regulatoryApproval Boolean      @default(false)
+  insuranceDetails  Json?
+  
+  // Platform metadata
+  featuredUntil     DateTime?
+  isActive          Boolean       @default(true)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  publishedAt       DateTime?
+  
+  // Relations
+  owner            User           @relation("ProjectOwner", fields: [ownerId], references: [id])
+  investments      Investment[]
+  projectUpdates   ProjectUpdate[]
+  escrowAccounts   EscrowAccount[]
+  favoritedBy      UserFavorite[]
+  
+  @@map("projects")
+}
+
+enum ProjectStatus {
+  DRAFT
+  UNDER_REVIEW
+  OPEN
+  FUNDING_COMPLETE
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  FAILED
+}
+
+model ProjectUpdate {
+  id          String   @id @default(cuid())
+  projectId   String
+  title       String
+  content     String
+  updateType  String   // milestone, financial, construction, legal
+  imageUrls   String[] @default([])
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  @@map("project_updates")
+}
+
+// ==================== INVESTMENT FLOW ====================
+
+model Investment {
+  id                String           @id @default(cuid())
+  userId            String
+  projectId         String
+  amount            Decimal
+  shares            Decimal?         // Number of shares/units purchased
+  status            InvestmentStatus @default(PENDING)
+  paymentIntentId   String?          // PSP payment intent ID
+  paymentStatus     PaymentStatus    @default(PENDING)
+  paymentMethod     String?          // card, bank_transfer, crypto
+  
+  // Investment terms
+  expectedReturn    Decimal?         // Locked-in return rate
+  investmentDate    DateTime?        // When payment was confirmed
+  maturityDate      DateTime?        // When investment matures
+  
+  // Financial tracking
+  totalReturns      Decimal          @default(0)
+  lastReturnDate    DateTime?
+  nextReturnDate    DateTime?
+  
+  // Metadata
+  referenceNumber   String           @unique @default(cuid())
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  confirmedAt       DateTime?
+  cancelledAt       DateTime?
+  refundedAt        DateTime?
+  
+  // Relations
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project         Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  payments        Payment[]
+  returnPayments  ReturnPayment[]
+  
+  @@map("investments")
+}
+
+enum InvestmentStatus {
+  PENDING
+  PAYMENT_REQUIRED
+  PAYMENT_PROCESSING
+  CONFIRMED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  REFUNDED
+  FAILED
+}
+
+// ==================== PAYMENT PROCESSING ====================
+
+model Payment {
+  id                String        @id @default(cuid())
+  investmentId      String?       // Null for non-investment payments
+  userId            String
+  amount            Decimal
+  currency          String        @default("EUR")
+  status            PaymentStatus @default(PENDING)
+  paymentType       PaymentType
+  paymentMethod     String        // card, bank_transfer, sepa, etc.
+  
+  // PSP Integration
+  pspProvider       PSPProvider   // OPENPAY, LEMONWAY
+  pspTransactionId  String?       // PSP transaction ID
+  pspSessionId      String?       // PSP session ID
+  pspResponse       Json?         // Full PSP response
+  
+  // Payment details
+  processingFee     Decimal       @default(0)
+  netAmount         Decimal       // Amount after fees
+  exchangeRate      Decimal?      // If currency conversion
+  
+  // Timeline
+  createdAt         DateTime      @default(now())
+  processedAt       DateTime?
+  completedAt       DateTime?
+  failedAt          DateTime?
+  refundedAt        DateTime?
+  
+  // Error handling
+  errorCode         String?
+  errorMessage      String?
+  retryCount        Int           @default(0)
+  
+  // Relations
+  user         User         @relation(fields: [userId], references: [id])
+  investment   Investment?  @relation(fields: [investmentId], references: [id])
+  refunds      Refund[]
+  escrowEntry  EscrowEntry?
+  
+  @@map("payments")
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REFUNDED
+  EXPIRED
+}
+
+enum PaymentType {
+  INVESTMENT
+  REFUND
+  RETURN_PAYMENT
+  FEE
+  WITHDRAWAL
+}
+
+enum PSPProvider {
+  OPENPAY
+  LEMONWAY
+  STRIPE
+  MOCK
+}
+
+model Refund {
+  id                String        @id @default(cuid())
+  paymentId         String
+  amount            Decimal
+  reason            String
+  status            PaymentStatus @default(PENDING)
+  pspRefundId       String?
+  processedAt       DateTime?
+  createdAt         DateTime      @default(now())
+  
+  payment Payment @relation(fields: [paymentId], references: [id])
+  
+  @@map("refunds")
+}
+
+// ==================== ESCROW MANAGEMENT ====================
+
+model EscrowAccount {
+  id              String   @id @default(cuid())
+  projectId       String
+  accountNumber   String   @unique // PSP escrow account number
+  pspProvider     PSPProvider
+  balance         Decimal  @default(0)
+  currency        String   @default("EUR")
+  status          String   @default("ACTIVE") // ACTIVE, FROZEN, CLOSED
+  createdAt       DateTime @default(now())
+  
+  project Project       @relation(fields: [projectId], references: [id])
+  entries EscrowEntry[]
+  
+  @@map("escrow_accounts")
+}
+
+model EscrowEntry {
+  id              String      @id @default(cuid())
+  escrowAccountId String
+  paymentId       String      @unique
+  entryType       EscrowType
+  amount          Decimal
+  description     String
+  processingDate  DateTime?
+  createdAt       DateTime    @default(now())
+  
+  escrowAccount EscrowAccount @relation(fields: [escrowAccountId], references: [id])
+  payment       Payment       @relation(fields: [paymentId], references: [id])
+  
+  @@map("escrow_entries")
+}
+
+enum EscrowType {
+  DEPOSIT
+  RELEASE
+  REFUND
+  FEE_DEDUCTION
+}
+
+// ==================== WALLET & PAYMENT METHODS ====================
+
+model Wallet {
+  id            String   @id @default(cuid())
+  userId        String
+  currency      String   @default("EUR")
+  balance       Decimal  @default(0)
+  availableBalance Decimal @default(0) // Balance minus pending transactions
+  pspWalletId   String?  // PSP wallet identifier
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  user User @relation(fields: [userId], references: [id])
+  
+  @@unique([userId, currency])
+  @@map("wallets")
+}
+
+model PaymentMethod {
+  id              String   @id @default(cuid())
+  userId          String
+  type            String   // card, bank_account, sepa
+  provider        PSPProvider
+  pspMethodId     String   // PSP payment method ID
+  isDefault       Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  
+  // Card details (encrypted/tokenized)
+  last4           String?
+  brand           String?  // visa, mastercard, etc.
+  expiryMonth     Int?
+  expiryYear      Int?
+  
+  // Bank account details
+  bankName        String?
+  accountType     String?
+  
+  createdAt       DateTime @default(now())
+  lastUsed        DateTime?
+  
+  user User @relation(fields: [userId], references: [id])
+  
+  @@map("payment_methods")
+}
+
+// ==================== RETURNS & DISTRIBUTIONS ====================
+
+model ReturnPayment {
+  id                String   @id @default(cuid())
+  investmentId      String
+  amount            Decimal
+  paymentType       String   // interest, principal, bonus
+  paymentDate       DateTime
+  status            String   @default("PENDING") // PENDING, PROCESSED, FAILED
+  description       String?
+  taxWithheld       Decimal  @default(0)
+  createdAt         DateTime @default(now())
+  
+  investment Investment @relation(fields: [investmentId], references: [id])
+  
+  @@map("return_payments")
+}
+
+// ==================== NOTIFICATIONS ====================
+
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String   // investment_confirmed, payment_received, kyc_approved, etc.
+  title       String
+  message     String
+  data        Json?    // Additional structured data
+  isRead      Boolean  @default(false)
+  emailSent   Boolean  @default(false)
+  smsSent     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  readAt      DateTime?
+  
+  user User @relation(fields: [userId], references: [id])
+  
+  @@map("notifications")
+}
+
+// ==================== AUDIT & COMPLIANCE ====================
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String   // USER_LOGIN, INVESTMENT_CREATED, PAYMENT_PROCESSED, etc.
+  resource  String?  // USER, INVESTMENT, PAYMENT, PROJECT
+  resourceId String?
+  details   Json?    // Structured log data
+  ipAddress String?
+  userAgent String?
+  severity  String   @default("INFO") // DEBUG, INFO, WARN, ERROR, CRITICAL
+  createdAt DateTime @default(now())
+  
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  @@index([action, createdAt])
+  @@index([userId, createdAt])
+  @@map("audit_logs")
+}
+
+// ==================== SYSTEM CONFIGURATION ====================
+
+model SystemConfig {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       Json
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("system_config")
+}
+
+// ==================== USER FAVORITES ====================
+
+model UserFavorite {
+  id        String   @id @default(cuid())
+  userId    String
+  projectId String
+  createdAt DateTime @default(now())
+  
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, projectId])
+  @@map("user_favorites")
+}

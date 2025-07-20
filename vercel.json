@@ -1,0 +1,12 @@
+{
+  "buildCommand": "cd inmotech-1 && npm run vercel-build",
+  "outputDirectory": "inmotech-1/.next",
+  "installCommand": "cd inmotech-1 && npm install",
+  "framework": "nextjs",
+  "regions": ["iad1"],
+  "functions": {
+    "inmotech-1/src/app/api/**.ts": {
+      "maxDuration": 30
+    }
+  }
+}

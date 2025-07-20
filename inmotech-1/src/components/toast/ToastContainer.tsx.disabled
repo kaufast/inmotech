@@ -1,0 +1,107 @@
+'use client';
+
+import React from 'react';
+import { useToast, type Toast, type ToastType } from '@/hooks/useToast';
+import { CheckCircleIcon, XCircleIcon, ExclamationTriangleIcon, InformationCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
+
+const ToastContainer: React.FC = () => {
+  const { toasts, removeToast } = useToast();
+
+  if (toasts.length === 0) return null;
+
+  return (
+    <div className="fixed top-4 right-4 z-50 space-y-2 max-w-sm w-full">
+      {toasts.map((toast) => (
+        <ToastItem 
+          key={toast.id} 
+          toast={toast} 
+          onRemove={() => removeToast(toast.id)} 
+        />
+      ))}
+    </div>
+  );
+};
+
+interface ToastItemProps {
+  toast: Toast;
+  onRemove: () => void;
+}
+
+const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove }) => {
+  const getToastStyles = (type: ToastType) => {
+    switch (type) {
+      case 'success':
+        return {
+          bg: 'bg-green-50 border-green-200',
+          text: 'text-green-800',
+          icon: CheckCircleIcon,
+          iconColor: 'text-green-400',
+        };
+      case 'error':
+        return {
+          bg: 'bg-red-50 border-red-200',
+          text: 'text-red-800',
+          icon: XCircleIcon,
+          iconColor: 'text-red-400',
+        };
+      case 'warning':
+        return {
+          bg: 'bg-yellow-50 border-yellow-200',
+          text: 'text-yellow-800',
+          icon: ExclamationTriangleIcon,
+          iconColor: 'text-yellow-400',
+        };
+      case 'info':
+      default:
+        return {
+          bg: 'bg-blue-50 border-blue-200',
+          text: 'text-blue-800',
+          icon: InformationCircleIcon,
+          iconColor: 'text-blue-400',
+        };
+    }
+  };
+
+  const styles = getToastStyles(toast.type);
+  const Icon = styles.icon;
+
+  return (
+    <div className={`
+      ${styles.bg} 
+      border rounded-lg shadow-lg p-4 
+      transform transition-all duration-300 ease-in-out
+      animate-in slide-in-from-right-full
+    `}>
+      <div className="flex items-start">
+        <div className="flex-shrink-0">
+          <Icon className={`h-5 w-5 ${styles.iconColor}`} aria-hidden="true" />
+        </div>
+        
+        <div className="ml-3 flex-1">
+          <p className={`text-sm font-medium ${styles.text}`}>
+            {toast.message}
+          </p>
+        </div>
+        
+        <div className="ml-4 flex-shrink-0 flex">
+          <button
+            type="button"
+            className={`
+              inline-flex rounded-md p-1.5 
+              ${styles.text} 
+              hover:bg-white hover:bg-opacity-20 
+              focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-blue-500
+              transition-colors duration-200
+            `}
+            onClick={onRemove}
+          >
+            <span className="sr-only">Dismiss</span>
+            <XMarkIcon className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ToastContainer;

@@ -1,0 +1,92 @@
+'use client';
+
+import React, { useState, useCallback, createContext, useContext, ReactNode } from 'react';
+
+export type ToastType = 'success' | 'error' | 'warning' | 'info';
+
+export interface Toast {
+  id: string;
+  message: string;
+  type: ToastType;
+  duration?: number;
+  createdAt: number;
+}
+
+interface ToastContextType {
+  toasts: Toast[];
+  showToast: (message: string, type?: ToastType, duration?: number) => void;
+  removeToast: (id: string) => void;
+  clearAllToasts: () => void;
+}
+
+const ToastContext = createContext<ToastContextType | undefined>(undefined);
+
+export const useToast = () => {
+  const context = useContext(ToastContext);
+  if (context === undefined) {
+    throw new Error('useToast must be used within a ToastProvider');
+  }
+  return context;
+};
+
+interface ToastProviderProps {
+  children: ReactNode;
+}
+
+export const ToastProvider = ({ children }: ToastProviderProps) => {
+  const [toasts, setToasts] = useState<Toast[]>([]);
+
+  const generateId = () => {
+    return Math.random().toString(36).substr(2, 9);
+  };
+
+  const removeToast = useCallback((id: string) => {
+    setToasts(prev => prev.filter(toast => toast.id !== id));
+  }, []);
+
+  const showToast = useCallback((
+    message: string, 
+    type: ToastType = 'info', 
+    duration: number = 5000
+  ) => {
+    const id = generateId();
+    const toast: Toast = {
+      id,
+      message,
+      type,
+      duration,
+      createdAt: Date.now(),
+    };
+
+    setToasts(prev => [...prev, toast]);
+
+    // Auto-remove toast after duration
+    if (duration > 0) {
+      setTimeout(() => {
+        removeToast(id);
+      }, duration);
+    }
+  }, [removeToast]);
+
+  const clearAllToasts = useCallback(() => {
+    setToasts([]);
+  }, []);
+
+  return (
+    <ToastContext.Provider value={{ toasts, showToast, removeToast, clearAllToasts }}>
+      {children}
+    </ToastContext.Provider>
+  );
+};
+
+// Hook for programmatic toast usage
+export const useToastActions = () => {
+  const { showToast } = useToast();
+
+  return {
+    success: (message: string, duration?: number) => showToast(message, 'success', duration),
+    error: (message: string, duration?: number) => showToast(message, 'error', duration),
+    warning: (message: string, duration?: number) => showToast(message, 'warning', duration),
+    info: (message: string, duration?: number) => showToast(message, 'info', duration),
+  };
+};
