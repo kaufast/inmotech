@@ -7,6 +7,21 @@ const nextConfig = {
   images: {
     domains: ['images.unsplash.com', 'unsplash.com'],
   },
+  experimental: {
+    outputFileTracingExcludes: {
+      '*': ['./server/**/*'],
+    },
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        module: false,
+      };
+    }
+    return config;
+  },
   async rewrites() {
     return [
       {

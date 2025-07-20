@@ -15,7 +15,7 @@ const messages = {
 };
 
 export default getRequestConfig(async ({ locale }) => {
-  const validLocale = locales.includes(locale as any) ? locale : 'en-GB';
+  const validLocale = locales.includes(locale as any) ? locale as string : 'en-GB';
   
   return {
     locale: validLocale,
