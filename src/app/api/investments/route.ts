@@ -55,12 +55,12 @@ export async function POST(request: NextRequest) {
     // Create investment record
     const investment = await prisma.investment.create({
       data: {
-        userId: authResult.userId,
-        projectId,
-        amount,
+        userId: authResult.userId!,
+        projectId: projectId as string,
+        amount: amount as number,
         currency: project.currency,
         status: 'PENDING',
-        paymentMethod,
+        paymentMethod: paymentMethod as string,
       }
     });
 
@@ -73,8 +73,8 @@ export async function POST(request: NextRequest) {
         details: paymentDetails,
         metadata: {
           investmentId: investment.id,
-          projectId,
-          userId: authResult.userId,
+          projectId: projectId as string,
+          userId: authResult.userId!,
         }
       });
 
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
         investmentId: investment.id,
         amount,
         currency: project.currency,
-        paymentTransactionId: paymentResult.transactionId,
+        paymentTransactionId: paymentResult.transactionId!,
       });
 
       // Update investment with payment details
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
         where: { id: investment.id },
         data: {
           status: 'CONFIRMED',
-          paymentTransactionId: paymentResult.transactionId,
+          paymentTransactionId: paymentResult.transactionId!,
           escrowTransactionId: escrowResult.transactionId,
           confirmedAt: new Date(),
         },
@@ -123,12 +123,12 @@ export async function POST(request: NextRequest) {
         projectTitle: project.title,
         amount: amount.toString(),
         currency: project.currency,
-        transactionId: paymentResult.transactionId,
+        transactionId: paymentResult.transactionId!,
       });
 
       return NextResponse.json({
         investment: updatedInvestment,
-        paymentTransaction: paymentResult.transactionId,
+        paymentTransaction: paymentResult.transactionId!,
         escrowTransaction: escrowResult.transactionId,
       }, { status: 201 });
 
@@ -174,7 +174,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10');
     const status = searchParams.get('status');
 
-    const where: any = { userId: authResult.userId };
+    const where: any = { userId: authResult.userId! };
     if (status) where.status = status;
 
     const [investments, total] = await Promise.all([

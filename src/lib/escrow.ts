@@ -180,7 +180,7 @@ class EscrowService {
       const receipt = await tx.wait();
 
       // Update database
-      await prisma.escrowTransaction.update({
+      await prisma.escrowTransaction.updateMany({
         where: { depositId },
         data: {
           status: 'REFUNDED',

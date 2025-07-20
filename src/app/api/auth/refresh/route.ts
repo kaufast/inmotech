@@ -89,6 +89,8 @@ export async function POST(request: NextRequest) {
         firstName: user.firstName,
         lastName: user.lastName,
         isVerified: user.isVerified,
+        isAdmin: user.isAdmin,
+        kycStatus: user.kycStatus,
       },
     });
 

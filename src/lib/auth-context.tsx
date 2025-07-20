@@ -9,6 +9,7 @@ interface User {
   firstName?: string;
   lastName?: string;
   isVerified: boolean;
+  isAdmin?: boolean;
   kycStatus?: 'pending' | 'approved' | 'rejected';
 }
 

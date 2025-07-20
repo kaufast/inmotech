@@ -64,7 +64,10 @@ export async function POST(request: NextRequest) {
         id: user.id,
         email: user.email,
         firstName: user.firstName,
-        lastName: user.lastName
+        lastName: user.lastName,
+        isVerified: user.isVerified,
+        isAdmin: user.isAdmin,
+        kycStatus: user.kycStatus
       },
       token
     }, { 

@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
 
     // Check if user is admin
     const user = await prisma.user.findUnique({
-      where: { id: authResult.userId }
+      where: { id: authResult.userId! }
     });
 
     if (!user?.isAdmin) {
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
         documents: projectData.documents || [],
         milestones: projectData.milestones || [],
         status: 'ACTIVE',
-        createdBy: authResult.userId,
+        createdBy: authResult.userId!,
       }
     });
 

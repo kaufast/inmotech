@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { verifyAuth } from '@/lib/auth-middleware';
-import { kycService, KYCService } from '@/lib/kyc-service';
+import { kycService } from '@/lib/kyc-service';
 
 const prisma = new PrismaClient();
 
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     // Check if user already has KYC submission
     const existingKyc = await prisma.kycSubmission.findFirst({
       where: { 
-        userId: authResult.userId,
+        userId: authResult.userId!,
         status: { in: ['PENDING', 'APPROVED'] }
       }
     });
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     // Create KYC submission record
     const kycSubmission = await prisma.kycSubmission.create({
       data: {
-        userId: authResult.userId,
+        userId: authResult.userId!,
         firstName: kycData.firstName,
         lastName: kycData.lastName,
         dateOfBirth: new Date(kycData.dateOfBirth),
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
       // Update user KYC status if approved
       if (verificationResult.status === 'approved') {
         await prisma.user.update({
-          where: { id: authResult.userId },
+          where: { id: authResult.userId! },
           data: { kycStatus: 'APPROVED' }
         });
       }
@@ -156,7 +156,7 @@ export async function GET(request: NextRequest) {
     }
 
     const kycSubmission = await prisma.kycSubmission.findFirst({
-      where: { userId: authResult.userId },
+      where: { userId: authResult.userId! },
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
