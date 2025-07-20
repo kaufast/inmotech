@@ -5,6 +5,6 @@ export async function GET() {
     status: 'ok',
     message: 'InmoTech API is running',
     timestamp: new Date().toISOString(),
-    version: '1.0.0'
+    version: '1.0.1'
   });
 }
