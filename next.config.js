@@ -12,6 +12,13 @@ const nextConfig = {
       '*': ['./server/**/*'],
     },
   },
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  eslint: {
+    ignoreDuringBuilds: false,
+    dirs: ['src', 'app'], // Only lint these directories, exclude server
+  },
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
