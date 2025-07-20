@@ -1,7 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET() {
-  return NextResponse.json({ message: 'Test GET endpoint works' });
+  try {
+    return NextResponse.json({ 
+      message: 'Test GET endpoint works',
+      timestamp: new Date().toISOString(),
+      env: {
+        nodeEnv: process.env.NODE_ENV,
+        hasDatabase: !!process.env.DATABASE_URL,
+        hasJwtSecret: !!process.env.JWT_SECRET
+      }
+    });
+  } catch (error) {
+    return NextResponse.json({ 
+      error: 'Server error',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -13,7 +28,10 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    return NextResponse.json({ 
+      error: 'Invalid JSON',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 400 });
   }
 }
 
