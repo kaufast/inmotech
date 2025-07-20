@@ -1,0 +1,225 @@
+{
+  "navigation": {
+    "home": "Home",
+    "community": "Community",
+    "about": "About",
+    "whitepaper": "Whitepaper",
+    "login": "Login",
+    "register": "Register",
+    "overview": "Overview",
+    "myInvestments": "My Investments",
+    "browseProjects": "Browse Projects",
+    "portfolioAnalysis": "Portfolio Analysis",
+    "analytics": "Analytics",
+    "payments": "Payments",
+    "settings": "Settings",
+    "signOut": "Sign Out",
+    "activities": "Activities",
+    "healthStatus": "Health status",
+    "trainingPlanning": "Training Planning",
+    "investmentGoals": "Investment Goals",
+    "lightMode": "Light Mode",
+    "darkMode": "Dark Mode"
+  },
+  "landing": {
+    "hero": {
+      "title": "Content in the cloud,",
+      "subtitle": "sustainable revenue in hand",
+      "description": "Transform the way you monetise content creation. Our platform connects creators to supporting fellow creators with financial and artistic freedom by unlocking steady revenue streams through the Cloud.",
+      "titleLine1": "Owning Property",
+      "titleLine2": "Just Got Easier",
+      "titleLine3": "Safer",
+      "newDescription": "Digitize your deeds. Transfer ownership securely. Automate payments with smart escrow — all backed by certified notaries.",
+      "ctaButton": "Get Started Now"
+    },
+    "trust": {
+      "title": "Trusted. Transparent. Legally compliant.",
+      "description": "We protect your investment with certified notaries, secure blockchain records, and clear legal compliance in Spain, the EU, and Latin America.",
+      "features": {
+        "immutable": "Immutable: Every transaction is permanent and tamper-proof.",
+        "verified": "Verified: Notaries and registrars approve every step — no shortcuts.",
+        "compliant": "Compliant: Fully aligned with local property laws and AML regulations.",
+        "private": "Private: Sensitive data is encrypted and only shared with authorized parties."
+      },
+      "guarantee": "No surprises. No hidden risks. Just 100% secure property deals — for real.",
+      "cta": {
+        "title": "Ready to own property the modern way?",
+        "button": "Get Started Now"
+      }
+    },
+    "properties": {
+      "title": "Live Investment Opportunities",
+      "subtitle": "Verified properties ready for co-ownership",
+      "viewAll": "View All Properties",
+      "cards": {
+        "madrid": {
+          "title": "Luxury Penthouse Madrid",
+          "location": "Salamanca District, Madrid",
+          "price": "€850,000",
+          "minInvestment": "€10,000",
+          "expectedReturn": "12% annual",
+          "timeframe": "18 months",
+          "description": "Prime location penthouse with panoramic city views in Madrid's most exclusive district.",
+          "highlights": [
+            "200m² with rooftop terrace",
+            "Fully renovated in 2023",
+            "High rental demand area",
+            "Metro access nearby"
+          ],
+          "funded": "76%",
+          "investors": "143"
+        },
+        "barcelona": {
+          "title": "Smart Apartment Barcelona",
+          "location": "Eixample, Barcelona", 
+          "price": "€520,000",
+          "minInvestment": "€5,000",
+          "expectedReturn": "10% annual",
+          "timeframe": "24 months",
+          "description": "Modern apartment in Barcelona's grid district with smart home technology and tourist appeal.",
+          "highlights": [
+            "120m² modernist building",
+            "Smart home automation",
+            "Tourist rental potential",
+            "Walking distance to Gaudí sites"
+          ],
+          "funded": "45%",
+          "investors": "89"
+        },
+        "valencia": {
+          "title": "Beachfront Condo Valencia",
+          "location": "City of Arts, Valencia",
+          "price": "€380,000",
+          "minInvestment": "€3,000",
+          "expectedReturn": "14% annual",
+          "timeframe": "12 months",
+          "description": "Stunning beachfront property near Valencia's iconic City of Arts and Sciences.",
+          "highlights": [
+            "90m² sea views",
+            "New development 2024",
+            "Beach access included",
+            "Growing tech hub nearby"
+          ],
+          "funded": "23%",
+          "investors": "34"
+        }
+      }
+    },
+    "footer": {
+      "madeBy": "Made by Kaufastwhite"
+    },
+    "share": "Share"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirm": "Confirm"
+  },
+  "dashboard": {
+    "greeting": "Hello, {name}",
+    "subtitle": "Here's what's happening with your investments today.",
+    "newInvestment": "New Investment",
+    "portfolio": {
+      "value": "Portfolio Value",
+      "performance": "Portfolio Performance",
+      "score": "Portfolio Score",
+      "allocation": "Portfolio Allocation",
+      "rebalancing": "Portfolio Rebalancing",
+      "excellent": "Excellent",
+      "percentile": "85th percentile",
+      "trackGrowth": "Track your investment growth over time",
+      "optimizeInvestments": "Optimise your investments"
+    },
+    "stats": {
+      "vsLastMonth": "vs last month",
+      "activeProjects": "Active Projects",
+      "thisQuarter": "this quarter",
+      "annualReturn": "Annual Return",
+      "vsTarget": "vs target 8.0%",
+      "nextPayment": "Next Payment",
+      "inDays": "in {days} days"
+    },
+    "timeframes": {
+      "week": "week",
+      "month": "month",
+      "year": "year",
+      "thisWeek": "this week",
+      "thisMonth": "this month",
+      "thisYear": "this year"
+    },
+    "categories": {
+      "residential": "Residential",
+      "commercial": "Commercial",
+      "mixedUse": "Mixed Use",
+      "investmentBreakdown": "Investment Breakdown"
+    },
+    "projects": {
+      "investmentProjects": "Investment Projects",
+      "active": "Active",
+      "completed": "Completed",
+      "funding": "Funding",
+      "onTrack": "On Track",
+      "delayed": "Delayed",
+      "progress": "Progress",
+      "funded": "Funded",
+      "invested": "Invested",
+      "minInvestment": "Min Investment",
+      "expectedReturn": "Expected Return",
+      "details": "Details",
+      "investNow": "Invest Now",
+      "left": "left",
+      "days": "days",
+      "viewAllInvestments": "View All Investments",
+      "viewAllProjects": "View All Projects"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "browseProjects": "Browse projects",
+      "viewReports": "View Reports",
+      "downloadReports": "Download reports",
+      "withdrawFunds": "Withdraw Funds",
+      "transferMoney": "Transfer money",
+      "setGoals": "Set Goals",
+      "investmentTargets": "Investment targets",
+      "rebalance": "Rebalance"
+    },
+    "activity": {
+      "recentActivity": "Recent Activity",
+      "dividendPayment": "Dividend Payment",
+      "projectMilestone": "Project Milestone",
+      "newInvestment": "New Investment",
+      "documentReady": "Document Ready",
+      "thisWeek": "This Week",
+      "earnings": "Earnings",
+      "pending": "Pending",
+      "timeAgo": {
+        "hoursAgo": "{hours}h ago",
+        "daysAgo": "{days}d ago"
+      }
+    },
+    "user": {
+      "premiumInvestor": "Premium Investor"
+    },
+    "search": {
+      "placeholder": "Search projects, investments...",
+      "searchLabel": "Search",
+      "calendar": "Calendar",
+      "chatbot": "ChatBot AI"
+    }
+  },
+  "projects": {
+    "madridLuxury": "Madrid Luxury Residences",
+    "madridLocation": "Salamanca, Madrid",
+    "barcelonaTech": "Barcelona Tech Hub",
+    "barcelonaLocation": "22@, Barcelona",
+    "lisbonModern": "Lisbon Modern Apartments",
+    "lisbonLocation": "Pr�ncipe Real, Lisbon",
+    "valenciaBeach": "Valencia Beach Resort",
+    "valenciaProject": "Valencia Project"
+  }
+}

@@ -1,0 +1,225 @@
+{
+  "navigation": {
+    "home": "Inicio",
+    "community": "Comunidad",
+    "about": "Acerca de",
+    "whitepaper": "Whitepaper",
+    "login": "Iniciar Sesión",
+    "register": "Registrarse",
+    "overview": "Resumen",
+    "myInvestments": "Mis Inversiones",
+    "browseProjects": "Explorar Proyectos",
+    "portfolioAnalysis": "Análisis de Portafolio",
+    "analytics": "Analíticas",
+    "payments": "Pagos",
+    "settings": "Configuración",
+    "signOut": "Cerrar Sesión",
+    "activities": "Actividades",
+    "healthStatus": "Estado de salud",
+    "trainingPlanning": "Planificador",
+    "investmentGoals": "Objetivos de Inversión",
+    "lightMode": "Modo Claro",
+    "darkMode": "Modo Oscuro"
+  },
+  "landing": {
+    "hero": {
+      "title": "Contenido en la nube,",
+      "subtitle": "ingresos sostenibles en la mano",
+      "description": "Transforma la forma en que monetizas la creación de contenido. Nuestra plataforma conecta creadores para apoyar a otros creadores con libertad financiera y artística desbloqueando flujos de ingresos constantes a través de la Nube.",
+      "titleLine1": "Ser Propietario",
+      "titleLine2": "Ahora Es Más Fácil",
+      "titleLine3": "Seguro",
+      "newDescription": "Digitaliza tus escrituras. Transfiere la propiedad de forma segura. Automatiza pagos con escrow inteligente — siempre respaldado por notarios certificados.",
+      "ctaButton": "Empezar Ahora"
+    },
+    "trust": {
+      "title": "Confiable. Transparente. 100% Legal.",
+      "description": "Protegemos tu inversión con notarios certificados, registros blockchain seguros, y cumplimiento legal claro en España, Europa y Latinoamérica.",
+      "features": {
+        "immutable": "Inmutable: Cada transacción queda registrada y no se puede alterar.",
+        "verified": "Verificado: Notarios y registros públicos aprueban cada paso — sin atajos.",
+        "compliant": "Cumple la ley: 100% alineado con leyes de propiedad y normativas anti-lavado.",
+        "private": "Privado: Tus datos están cifrados y solo accesibles para las partes autorizadas."
+      },
+      "guarantee": "Sin sorpresas. Sin riesgos ocultos. Solo operaciones inmobiliarias seguras — de verdad.",
+      "cta": {
+        "title": "¿Listo para ser propietario de forma moderna?",
+        "button": "Empieza Ahora"
+      }
+    },
+    "properties": {
+      "title": "Oportunidades de Inversión en Vivo",
+      "subtitle": "Propiedades verificadas listas para co-propiedad",
+      "viewAll": "Ver Todas las Propiedades",
+      "cards": {
+        "madrid": {
+          "title": "Penthouse de Lujo Madrid",
+          "location": "Distrito Salamanca, Madrid",
+          "price": "€850,000",
+          "minInvestment": "€10,000",
+          "expectedReturn": "12% anual",
+          "timeframe": "18 meses",
+          "description": "Penthouse en ubicación privilegiada con vistas panorámicas de la ciudad en el distrito más exclusivo de Madrid.",
+          "highlights": [
+            "200m² con terraza en azotea",
+            "Totalmente renovado en 2023",
+            "Área de alta demanda de alquiler",
+            "Acceso al metro cercano"
+          ],
+          "funded": "76%",
+          "investors": "143"
+        },
+        "barcelona": {
+          "title": "Apartamento Inteligente Barcelona",
+          "location": "Eixample, Barcelona",
+          "price": "€520,000",
+          "minInvestment": "€5,000",
+          "expectedReturn": "10% anual",
+          "timeframe": "24 meses",
+          "description": "Apartamento moderno en el distrito cuadriculado de Barcelona con tecnología domótica y atractivo turístico.",
+          "highlights": [
+            "120m² edificio modernista",
+            "Automatización del hogar",
+            "Potencial de alquiler turístico",
+            "A pie de sitios de Gaudí"
+          ],
+          "funded": "45%",
+          "investors": "89"
+        },
+        "valencia": {
+          "title": "Condominio Frente al Mar Valencia",
+          "location": "Ciudad de las Artes, Valencia",
+          "price": "€380,000",
+          "minInvestment": "€3,000",
+          "expectedReturn": "14% anual",
+          "timeframe": "12 meses",
+          "description": "Impresionante propiedad frente al mar cerca de la icónica Ciudad de las Artes y las Ciencias de Valencia.",
+          "highlights": [
+            "90m² con vistas al mar",
+            "Nuevo desarrollo 2024",
+            "Acceso a playa incluido",
+            "Hub tecnológico en crecimiento"
+          ],
+          "funded": "23%",
+          "investors": "34"
+        }
+      }
+    },
+    "footer": {
+      "madeBy": "Made by KauFast"
+    },
+    "share": "Compartir"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "confirm": "Confirmar"
+  },
+  "dashboard": {
+    "greeting": "Hola, {name}",
+    "subtitle": "Esto es lo que está pasando con tus inversiones hoy.",
+    "newInvestment": "Nueva Inversión",
+    "portfolio": {
+      "value": "Valor del Portafolio",
+      "performance": "Rendimiento del Portafolio",
+      "score": "Puntuación del Portafolio",
+      "allocation": "Asignación del Portafolio",
+      "rebalancing": "Rebalanceo del Portafolio",
+      "excellent": "Excelente",
+      "percentile": "Percentil 85",
+      "trackGrowth": "Rastrea el crecimiento de tu inversión a lo largo del tiempo",
+      "optimizeInvestments": "Optimiza tus inversiones"
+    },
+    "stats": {
+      "vsLastMonth": "vs mes pasado",
+      "activeProjects": "Proyectos Activos",
+      "thisQuarter": "este trimestre",
+      "annualReturn": "Retorno Anual",
+      "vsTarget": "vs objetivo 8.0%",
+      "nextPayment": "Próximo Pago",
+      "inDays": "en {days} días"
+    },
+    "timeframes": {
+      "week": "semana",
+      "month": "mes",
+      "year": "año",
+      "thisWeek": "esta semana",
+      "thisMonth": "este mes",
+      "thisYear": "este año"
+    },
+    "categories": {
+      "residential": "Residencial",
+      "commercial": "Comercial",
+      "mixedUse": "Uso Mixto",
+      "investmentBreakdown": "Desglose de Inversión"
+    },
+    "projects": {
+      "investmentProjects": "Proyectos de Inversión",
+      "active": "Activo",
+      "completed": "Completado",
+      "funding": "Financiamiento",
+      "onTrack": "En Curso",
+      "delayed": "Retrasado",
+      "progress": "Progreso",
+      "funded": "Financiado",
+      "invested": "Invertido",
+      "minInvestment": "Inversión Mínima",
+      "expectedReturn": "Retorno Esperado",
+      "details": "Detalles",
+      "investNow": "Invertir Ahora",
+      "left": "restante",
+      "days": "días",
+      "viewAllInvestments": "Ver Todas las Inversiones",
+      "viewAllProjects": "Ver Todos los Proyectos"
+    },
+    "quickActions": {
+      "title": "Acciones Rápidas",
+      "browseProjects": "Explorar proyectos",
+      "viewReports": "Ver Reportes",
+      "downloadReports": "Descargar reportes",
+      "withdrawFunds": "Retirar Fondos",
+      "transferMoney": "Transferir dinero",
+      "setGoals": "Establecer Objetivos",
+      "investmentTargets": "Objetivos de inversión",
+      "rebalance": "Rebalancear"
+    },
+    "activity": {
+      "recentActivity": "Actividad Reciente",
+      "dividendPayment": "Pago de Dividendos",
+      "projectMilestone": "Hito del Proyecto",
+      "newInvestment": "Nueva Inversión",
+      "documentReady": "Documento Listo",
+      "thisWeek": "Esta Semana",
+      "earnings": "Ganancias",
+      "pending": "Pendiente",
+      "timeAgo": {
+        "hoursAgo": "hace {hours}h",
+        "daysAgo": "hace {days}d"
+      }
+    },
+    "user": {
+      "premiumInvestor": "Inversor Premium"
+    },
+    "search": {
+      "placeholder": "Buscar proyectos, inversiones...",
+      "searchLabel": "Buscar",
+      "calendar": "Calendario",
+      "chatbot": "ChatBot IA"
+    }
+  },
+  "projects": {
+    "madridLuxury": "Residencias de Lujo Madrid",
+    "madridLocation": "Salamanca, Madrid",
+    "barcelonaTech": "Hub Tecnológico Barcelona",
+    "barcelonaLocation": "22@, Barcelona",
+    "lisbonModern": "Apartamentos Modernos Lisboa",
+    "lisbonLocation": "Príncipe Real, Lisboa",
+    "valenciaBeach": "Resort de Playa Valencia",
+    "valenciaProject": "Proyecto Valencia"
+  }
+}
