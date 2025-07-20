@@ -1,0 +1,17 @@
+version: 1.0
+runtime: docker
+build:
+  commands:
+    build:
+      - echo "Building with Docker..."
+run:
+  runtime-version: latest
+  command: npm start
+  network:
+    port: 8000
+    env:
+      - name: PORT
+        value: "8000"
+  env:
+    - name: NODE_ENV
+      value: production
