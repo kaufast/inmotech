@@ -20,6 +20,7 @@ export async function OPTIONS() {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('Login API called at:', new Date().toISOString());
     const { email, password } = await request.json();
 
     if (!email || !password) {
