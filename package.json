@@ -4,15 +4,16 @@
   "description": "InmoTech - Real estate technology and investment platform",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "vercel-build": "next build",
+    "build": "prisma generate && next build",
+    "vercel-build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "server": "cd server && npm run dev",
     "server:build": "cd server && npm run build",
     "server:start": "cd server && npm start",
     "dev:full": "concurrently \"npm run dev\" \"npm run server\"",
-    "install:all": "npm install && cd server && npm install"
+    "install:all": "npm install && cd server && npm install",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@headlessui/react": "^2.0.0",
