@@ -18,11 +18,11 @@ async function checkPasswords() {
     console.log('🔍 Connecting to database...');
     const sql = neon(DATABASE_URL);
 
-    // Get the password hash for kennethmelchor@gmail.com
+    // Get the password hash for admin@inmote.ch
     const user = await sql`
       SELECT password_hash
       FROM users 
-      WHERE email = 'kennethmelchor@gmail.com'
+      WHERE email = 'admin@inmote.ch'
       LIMIT 1
     `;
 
@@ -55,6 +55,14 @@ async function checkPasswords() {
       'admin123',
       'Admin123',
       'ADMIN123',
+      'AdminPass123!',
+      'admin',
+      'Admin',
+      'ADMIN',
+      'inmote123',
+      'Inmote123',
+      'INMOTE123',
+      'admin@inmote.ch',
       'test123',
       'Test123',
       'TEST123'
