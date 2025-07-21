@@ -1,7 +1,8 @@
 import { pbkdf2 } from '@noble/hashes/pbkdf2';
 import { sha256 } from '@noble/hashes/sha256';
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils';
-import { compare, hash as bcryptHash } from 'bcrypt-ts/browser';
+// Try different import approach for Vercel Edge Runtime
+import { compare, hash as bcryptHash } from 'bcrypt-ts';
 
 // Verify password against bcrypt hash (for existing users)
 export async function verifyPassword(password: string, hash: string): Promise<boolean> {
