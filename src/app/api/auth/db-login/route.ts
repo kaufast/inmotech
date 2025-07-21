@@ -1,34 +1,13 @@
 import { NextRequest } from 'next/server';
 import { neon } from '@neondatabase/serverless';
-import { generateSecureToken, verifyPassword } from '@/lib/edge-crypto';
+import { generateSecureToken, verifyPassword, createSecureJWT } from '@/lib/edge-crypto';
 
 export const runtime = 'edge';
 
 // Get database URL from environment
 const DATABASE_URL = process.env.DATABASE_URL || "";
 
-// Simple JWT creation
-function createJWT(payload: any, expiresIn: string): string {
-  const header = {
-    alg: 'HS256',
-    typ: 'JWT'
-  };
-  
-  const now = Math.floor(Date.now() / 1000);
-  const exp = expiresIn === '7d' ? now + (7 * 24 * 60 * 60) : now + (30 * 24 * 60 * 60);
-  
-  const fullPayload = {
-    ...payload,
-    iat: now,
-    exp
-  };
-  
-  const token = btoa(JSON.stringify(header)) + '.' + 
-                btoa(JSON.stringify(fullPayload)) + '.' +
-                generateSecureToken().substring(0, 43);
-  
-  return token;
-}
+// This insecure function has been replaced with createSecureJWT from edge-crypto.ts
 
 export async function POST(request: NextRequest) {
   try {
@@ -107,8 +86,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Generate tokens
-    const accessToken = createJWT({ userId: user.id, email: user.email }, '7d');
+    // Generate secure tokens with HMAC-SHA256 signatures
+    const accessToken = await createSecureJWT({ userId: user.id, email: user.email }, '7d');
     const refreshToken = generateSecureToken();
 
     // Update last login
