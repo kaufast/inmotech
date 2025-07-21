@@ -99,7 +99,7 @@ async function createHmacSignature(data: string, secret: string): Promise<string
   
   // Convert ArrayBuffer to base64url
   const bytes = new Uint8Array(signature);
-  const binary = String.fromCharCode(...bytes);
+  const binary = String.fromCharCode.apply(null, Array.from(bytes));
   return base64UrlEncode(binary);
 }
 
