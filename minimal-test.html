@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minimal Login Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 400px; 
+            margin: 50px auto; 
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        input { 
+            width: 100%; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border: 2px solid #444;
+            background: #333;
+            color: white;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button { 
+            width: 100%; 
+            padding: 15px; 
+            background: #ff6b35; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .result { 
+            margin: 20px 0; 
+            padding: 15px; 
+            background: #333; 
+            border-radius: 8px;
+            border: 1px solid #555;
+        }
+        .success { background: #2d5a2d; border-color: #4a8a4a; }
+        .error { background: #5a2d2d; border-color: #8a4a4a; }
+        h1 { color: #ff6b35; text-align: center; }
+        .test-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .test-buttons button {
+            padding: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔬 Minimal Login Test</h1>
+    <p>Pure HTML/JS - No frameworks, no validation, no complexity</p>
+
+    <!-- Method 1: Simple Form -->
+    <h3>Method 1: Basic Form</h3>
+    <input type="text" id="email1" placeholder="Email" value="test@example.com">
+    <input type="text" id="password1" placeholder="Password" value="test123">
+    <button onclick="testBasicForm()">Test Basic Form</button>
+
+    <!-- Method 2: URL Parameters -->
+    <h3>Method 2: URL Parameters</h3>
+    <button onclick="testUrlMethod()">Test URL Method</button>
+
+    <!-- Method 3: Direct Fetch -->
+    <h3>Method 3: Direct API Call</h3>
+    <div class="test-buttons">
+        <button onclick="testAPI()">Test API</button>
+        <button onclick="testHealth()">Test Health</button>
+        <button onclick="testDifferentAPI()">Test Different API</button>
+        <button onclick="clearResults()">Clear</button>
+    </div>
+
+    <div id="result"></div>
+
+    <script>
+        function showResult(message, type = 'info') {
+            const result = document.getElementById('result');
+            result.className = `result ${type}`;
+            result.innerHTML = message;
+            console.log(`[${type}] ${message}`);
+        }
+
+        function testBasicForm() {
+            const email = document.getElementById('email1').value;
+            const password = document.getElementById('password1').value;
+            
+            showResult(`
+                <strong>📝 Form Values Captured:</strong><br>
+                Email: "${email}"<br>
+                Password: "${password}"<br>
+                <em>No validation errors so far...</em>
+            `, 'success');
+
+            // Test if we can make API call
+            testAPICall(email, password);
+        }
+
+        function testUrlMethod() {
+            const testUrl = `${window.location.origin}/test-auth?email=test@example.com&password=test123`;
+            showResult(`
+                <strong>🔗 URL Method:</strong><br>
+                <a href="${testUrl}" target="_blank" style="color: #ff6b35;">${testUrl}</a><br>
+                <em>Click link to test URL-based auth</em>
+            `, 'info');
+        }
+
+        async function testAPICall(email, password) {
+            try {
+                showResult('🔄 Making API call...', 'info');
+                
+                const response = await fetch('/api/simple-auth', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.text();
+                
+                showResult(`
+                    <strong>📡 API Response:</strong><br>
+                    Status: ${response.status}<br>
+                    Response: <pre>${data}</pre>
+                `, response.ok ? 'success' : 'error');
+
+            } catch (error) {
+                showResult(`
+                    <strong>💥 Network Error:</strong><br>
+                    ${error.message}
+                `, 'error');
+            }
+        }
+
+        async function testAPI() {
+            await testAPICall('test@example.com', 'test123');
+        }
+
+        async function testHealth() {
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.text();
+                showResult(`
+                    <strong>❤️ Health Check:</strong><br>
+                    Status: ${response.status}<br>
+                    Response: ${data}
+                `, response.ok ? 'success' : 'error');
+            } catch (error) {
+                showResult(`Health check failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDifferentAPI() {
+            try {
+                const response = await fetch('https://httpbin.org/post', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ test: 'data' })
+                });
+                const data = await response.json();
+                showResult(`
+                    <strong>🌐 External API Test:</strong><br>
+                    Status: ${response.status}<br>
+                    <em>External API works - isolates our server issues</em>
+                `, 'success');
+            } catch (error) {
+                showResult(`External API failed: ${error.message}`, 'error');
+            }
+        }
+
+        function clearResults() {
+            document.getElementById('result').innerHTML = '';
+        }
+
+        // Auto-test on load
+        window.addEventListener('load', () => {
+            showResult('🚀 Minimal test page loaded - ready for testing', 'info');
+        });
+
+        // Log any errors
+        window.addEventListener('error', (e) => {
+            showResult(`JavaScript Error: ${e.message}`, 'error');
+        });
+    </script>
+</body>
+</html>

@@ -34,6 +34,17 @@ export const authApi = {
       throw new Error(error.error || 'Login failed');
     }
 
-    return response.json();
+    const result = await response.json();
+    
+    // Handle the new response format from server
+    if (result.tokens) {
+      return {
+        user: result.user,
+        token: result.tokens.accessToken
+      };
+    }
+    
+    // Fallback for old format
+    return result;
   },
 };

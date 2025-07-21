@@ -17,7 +17,8 @@ import {
   CreditCard,
   LogOut,
   Calendar,
-  MessageCircle
+  MessageCircle,
+  Heart
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/contexts/AuthContext';
@@ -43,6 +44,7 @@ export const ModernDashboardLayout: React.FC<ModernDashboardLayoutProps> = ({ ch
   const secondaryItems = [
     { id: 'investments', icon: TrendingUp, label: t('myInvestments') },
     { id: 'projects', icon: Target, label: t('browseProjects') },
+    { id: 'watchlist', icon: Heart, label: t('watchlist') },
     { id: 'portfolio', icon: PieChart, label: t('portfolioAnalysis') },
     { id: 'analytics', icon: Activity, label: t('analytics') },
     { id: 'payments', icon: CreditCard, label: t('payments') },

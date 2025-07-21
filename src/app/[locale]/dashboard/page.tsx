@@ -9,6 +9,8 @@ import { ModernInvestmentProjects } from '@/components/dashboard/ModernInvestmen
 import { ModernPortfolioOverview } from '@/components/dashboard/ModernPortfolioOverview';
 import { ModernQuickActions } from '@/components/dashboard/ModernQuickActions';
 import { ModernRecentActivity } from '@/components/dashboard/ModernRecentActivity';
+import { InvestmentCalculator } from '@/components/dashboard/InvestmentCalculator';
+import { PersonalizedRecommendations } from '@/components/dashboard/PersonalizedRecommendations';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -45,12 +47,14 @@ export default function DashboardPage() {
             {/* Left Column - Main Content */}
             <div className="lg:col-span-2 space-y-6">
               <ModernPerformanceChart />
+              <InvestmentCalculator />
               <ModernInvestmentProjects />
             </div>
 
             {/* Right Column - Sidebar */}
             <div className="space-y-6">
               <ModernPortfolioOverview />
+              <PersonalizedRecommendations />
               <ModernQuickActions />
               <ModernRecentActivity />
             </div>

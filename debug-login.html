@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>InmoTech Login Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        .container {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid #444;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #555;
+            border-radius: 6px;
+            background: #333;
+            color: white;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #ff6b35, #ff8e53);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .success {
+            background: #2d5a2d;
+            border: 1px solid #4a8a4a;
+        }
+        .error {
+            background: #5a2d2d;
+            border: 1px solid #8a4a4a;
+        }
+        .info {
+            background: #2d4a5a;
+            border: 1px solid #4a6a8a;
+        }
+        .log {
+            background: #333;
+            border: 1px solid #555;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        h1 { color: #ff6b35; }
+        h3 { color: #ff8e53; margin-top: 30px; }
+        .test-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 InmoTech Login Debug Tool</h1>
+        <p>This tool bypasses all React/Next.js validation to isolate the issue.</p>
+
+        <!-- Manual Login Test -->
+        <h3>📝 Manual Login Test</h3>
+        <form id="manualForm">
+            <input type="text" id="email" placeholder="Email (any text)" value="test@example.com">
+            <input type="text" id="password" placeholder="Password (any text)" value="test123">
+            <button type="submit">🚀 Test Login</button>
+        </form>
+
+        <!-- Automated Tests -->
+        <h3>🤖 Automated Tests</h3>
+        <div class="test-buttons">
+            <button onclick="testAPI()">🔌 Test API Health</button>
+            <button onclick="testDifferentData()">📊 Test Various Data</button>
+            <button onclick="testEmptyLogin()">🚫 Test Empty Data</button>
+            <button onclick="clearLogs()">🧹 Clear Logs</button>
+        </div>
+
+        <!-- Results -->
+        <h3>📋 Results</h3>
+        <div id="result"></div>
+        
+        <h3>📝 Debug Log</h3>
+        <div id="log" class="result log"></div>
+    </div>
+
+    <script>
+        const API_URL = 'https://inmotech-4g3ejr6kp-kaufasts-projects.vercel.app';
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logDiv = document.getElementById('log');
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            logEntry.style.color = type === 'error' ? '#ff6b6b' : type === 'success' ? '#51cf66' : '#74c0fc';
+            logDiv.appendChild(logEntry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function showResult(message, type) {
+            const result = document.getElementById('result');
+            result.className = `result ${type}`;
+            result.innerHTML = message;
+        }
+
+        async function makeRequest(url, data) {
+            log(`Making request to: ${url}`);
+            log(`Request data: ${JSON.stringify(data)}`);
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                log(`Response status: ${response.status} ${response.statusText}`);
+                log(`Response headers: ${JSON.stringify(Object.fromEntries(response.headers))}`);
+
+                const responseText = await response.text();
+                log(`Raw response: ${responseText}`);
+
+                let responseData;
+                try {
+                    responseData = JSON.parse(responseText);
+                } catch {
+                    responseData = { rawResponse: responseText };
+                }
+
+                if (response.ok) {
+                    log('✅ Request successful', 'success');
+                    showResult(`
+                        <strong>✅ Success!</strong><br>
+                        Status: ${response.status}<br>
+                        Response: <pre>${JSON.stringify(responseData, null, 2)}</pre>
+                    `, 'success');
+                } else {
+                    log(`❌ Request failed: ${response.status}`, 'error');
+                    showResult(`
+                        <strong>❌ Failed!</strong><br>
+                        Status: ${response.status}<br>
+                        Error: <pre>${JSON.stringify(responseData, null, 2)}</pre>
+                    `, 'error');
+                }
+
+                return { response, data: responseData };
+            } catch (error) {
+                log(`💥 Network error: ${error.message}`, 'error');
+                showResult(`
+                    <strong>💥 Network Error!</strong><br>
+                    ${error.message}
+                `, 'error');
+                throw error;
+            }
+        }
+
+        // Manual form submission
+        document.getElementById('manualForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            log('=== MANUAL LOGIN TEST ===');
+            await makeRequest(`${API_URL}/api/auth/login`, { email, password });
+        });
+
+        // Test API Health
+        async function testAPI() {
+            log('=== API HEALTH TEST ===');
+            try {
+                const response = await fetch(`${API_URL}/api/health`);
+                const data = await response.text();
+                log(`Health check: ${response.status} - ${data}`, response.ok ? 'success' : 'error');
+                showResult(`API Health: ${response.status} - ${data}`, response.ok ? 'success' : 'error');
+            } catch (error) {
+                log(`Health check failed: ${error.message}`, 'error');
+                showResult(`Health check failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Test different data variations
+        async function testDifferentData() {
+            log('=== TESTING DIFFERENT DATA VARIATIONS ===');
+            
+            const testCases = [
+                { email: 'simple@test.com', password: 'simple123' },
+                { email: 'test', password: 'test' },
+                { email: 'user@domain.org', password: 'complexP@ssw0rd!' },
+                { email: 'a@b.c', password: '123' }
+            ];
+
+            for (const testCase of testCases) {
+                log(`Testing: ${JSON.stringify(testCase)}`);
+                try {
+                    await makeRequest(`${API_URL}/api/auth/login`, testCase);
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second between tests
+                } catch (error) {
+                    log(`Test case failed: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // Test empty data
+        async function testEmptyLogin() {
+            log('=== TESTING EMPTY DATA ===');
+            await makeRequest(`${API_URL}/api/auth/login`, { email: '', password: '' });
+        }
+
+        // Clear logs
+        function clearLogs() {
+            document.getElementById('log').innerHTML = '';
+            document.getElementById('result').innerHTML = '';
+            log('Logs cleared');
+        }
+
+        // Auto-run health check on load
+        window.addEventListener('load', () => {
+            log('🚀 Debug tool loaded');
+            testAPI();
+        });
+    </script>
+</body>
+</html>

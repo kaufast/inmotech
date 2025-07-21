@@ -1,104 +1,92 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
+import { z } from 'zod';
+import { prisma } from '@/lib/prisma';
+import { validateToken, generateToken } from '@/lib/auth-server';
+import { withMiddleware } from '@/lib/api-middleware';
 
-const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET!;
-const REFRESH_SECRET = process.env.REFRESH_JWT_SECRET!;
+// Force Node.js runtime
+export const runtime = 'nodejs';
 
-export async function POST(request: NextRequest) {
+// Input validation schema
+const refreshSchema = z.object({
+  refreshToken: z.string().min(1, 'Refresh token is required')
+});
+
+// Main refresh handler
+async function refreshHandler(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
+    // Check for refresh token in cookie first
+    let refreshToken = request.cookies.get('refresh-token')?.value;
+    
+    // If not in cookie, check request body
+    if (!refreshToken) {
+      const body = await request.json();
+      const validation = refreshSchema.safeParse(body);
+      
+      if (!validation.success) {
+        return NextResponse.json(
+          { error: 'Refresh token is required' },
+          { status: 400 }
+        );
+      }
+      
+      refreshToken = validation.data.refreshToken;
+    }
+
+    // Find the refresh token in database
+    const storedToken = await prisma.refreshToken.findUnique({
+      where: { token: refreshToken },
+      include: { user: true }
+    });
+
+    if (!storedToken || storedToken.isRevoked || storedToken.expiresAt < new Date()) {
       return NextResponse.json(
-        { error: 'No token provided' },
+        { error: 'Invalid or expired refresh token' },
         { status: 401 }
       );
     }
 
-    const token = authHeader.substring(7);
-    
-    // Verify the current token (even if expired)
-    let payload;
-    try {
-      payload = jwt.verify(token, JWT_SECRET) as { userId: string };
-    } catch (error) {
-      // Token might be expired, try to decode without verification
-      payload = jwt.decode(token) as { userId: string };
-      if (!payload?.userId) {
-        return NextResponse.json(
-          { error: 'Invalid token' },
-          { status: 401 }
-        );
-      }
-    }
-
-    // Get user and valid refresh token
-    const user = await prisma.user.findUnique({
-      where: { id: payload.userId },
-      include: {
-        refreshTokens: {
-          where: {
-            expiresAt: { gt: new Date() },
-            isRevoked: false,
-          },
-          orderBy: { createdAt: 'desc' },
-          take: 1,
-        },
-      },
-    });
-
-    if (!user || user.refreshTokens.length === 0) {
+    // Check if user is still active
+    if (!storedToken.user.isActive) {
       return NextResponse.json(
-        { error: 'No valid refresh token' },
-        { status: 401 }
+        { error: 'Account is deactivated' },
+        { status: 403 }
       );
     }
 
     // Generate new access token
-    const newToken = jwt.sign({ userId: user.id }, JWT_SECRET, { 
-      expiresIn: '15m' 
-    });
+    const newAccessToken = generateToken(storedToken.user.id, storedToken.user.email);
 
-    // Optionally rotate refresh token (recommended for security)
-    const shouldRotateRefresh = Math.random() < 0.1; // 10% chance
-    if (shouldRotateRefresh) {
-      // Revoke old refresh token
-      await prisma.refreshToken.update({
-        where: { id: user.refreshTokens[0].id },
-        data: { isRevoked: true },
-      });
-
-      // Create new refresh token
-      await prisma.refreshToken.create({
-        data: {
-          userId: user.id,
-          token: jwt.sign({ userId: user.id }, REFRESH_SECRET, { 
-            expiresIn: '7d' 
-          }),
-          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        },
-      });
-    }
-
+    // Return new token
     return NextResponse.json({
-      token: newToken,
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        isVerified: user.isVerified,
-        isAdmin: user.isAdmin,
-        kycStatus: user.kycStatus,
-      },
+      success: true,
+      message: 'Token refreshed successfully',
+      token: newAccessToken,
+      expiresIn: 7 * 24 * 60 * 60 // 7 days in seconds
     });
 
   } catch (error) {
     console.error('Token refresh error:', error);
+    
     return NextResponse.json(
-      { error: 'Token refresh failed' },
+      { error: 'Failed to refresh token' },
       { status: 500 }
     );
   }
 }
+
+// Export handlers with middleware
+export const POST = withMiddleware(refreshHandler, {
+  rateLimit: {
+    windowMs: 60 * 1000, // 1 minute
+    max: 10 // 10 requests per minute
+  },
+  cors: {
+    credentials: true
+  }
+});
+
+export const OPTIONS = withMiddleware(
+  () => new NextResponse(null, { status: 200 }),
+  { cors: { credentials: true } }
+);

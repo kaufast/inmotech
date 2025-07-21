@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { TrendingUp, Zap, Shield, TrendingDown, BarChart3, Users, ArrowRight } from 'lucide-react';
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email format'),
+  email: z.string().min(1, 'Email is required'),
   password: z.string().min(1, 'Password is required'),
 });
 
@@ -20,7 +20,7 @@ export default function LoginForm() {
   const { login, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const locale = pathname.split('/')[1];
+  const locale = pathname?.split("/")[1] || "en-GB";
 
   const {
     register,
@@ -132,7 +132,7 @@ export default function LoginForm() {
                       <div>
                         <input
                           {...register('email')}
-                          type="email"
+                          type="text"
                           autoComplete="email"
                           className="appearance-none relative block w-full px-4 py-3 bg-white/5 border border-white/10 placeholder-gray-500 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
                           placeholder="Email address"

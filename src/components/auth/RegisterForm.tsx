@@ -12,7 +12,7 @@ import { TrendingUp, Rocket, Globe, Lock, ArrowRight } from 'lucide-react';
 const registerSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
-  email: z.string().email('Invalid email format'),
+  email: z.string().min(1, 'Email is required'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -26,7 +26,7 @@ export default function RegisterForm() {
   const { register: registerUser, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const locale = pathname.split('/')[1];
+  const locale = pathname?.split("/")[1] || "en-GB";
 
   const {
     register,
@@ -174,7 +174,7 @@ export default function RegisterForm() {
                       <div>
                         <input
                           {...register('email')}
-                          type="email"
+                          type="text"
                           autoComplete="email"
                           className="appearance-none relative block w-full px-4 py-3 bg-white/5 border border-white/10 placeholder-gray-500 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
                           placeholder="Email address"

@@ -12,7 +12,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 export default function LandingPage() {
   const t = useTranslations();
   const pathname = usePathname();
-  const locale = pathname.split('/')[1];
+  const locale = pathname?.split('/')[1] || 'en-GB';
   return (
     <div className="min-h-screen bg-black text-white overflow-hidden relative">
       {/* Background Gradient Effects */}

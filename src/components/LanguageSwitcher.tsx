@@ -27,7 +27,7 @@ export default function LanguageSwitcher() {
     }
     
     // Get the path segments after removing the locale
-    const segments = pathname.split('/').filter(Boolean);
+    const segments = pathname?.split('/').filter(Boolean) || [];
     const currentLocaleIndex = segments.findIndex(segment => locales.includes(segment as any));
     
     if (currentLocaleIndex !== -1) {

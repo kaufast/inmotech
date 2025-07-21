@@ -10,6 +10,10 @@ type Props = {
 export default function RootLayout({ children }: Props) {
   return (
     <html>
+      <head>
+        <link rel="icon" href="/favicon.ico" />
+        <title>InmoTech - Real Estate Investment Platform</title>
+      </head>
       <body>
         <AuthProvider>
           {children}

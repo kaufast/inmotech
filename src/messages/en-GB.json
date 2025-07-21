@@ -9,6 +9,7 @@
     "overview": "Overview",
     "myInvestments": "My Investments",
     "browseProjects": "Browse Projects",
+    "watchlist": "Watchlist",
     "portfolioAnalysis": "Portfolio Analysis",
     "analytics": "Analytics",
     "payments": "Payments",
@@ -221,5 +222,27 @@
     "lisbonLocation": "Pr�ncipe Real, Lisbon",
     "valenciaBeach": "Valencia Beach Resort",
     "valenciaProject": "Valencia Project"
+  },
+  "watchlist": {
+    "pageTitle": "My Watchlist - InmoTech",
+    "pageDescription": "Manage your favorite investment properties and opportunities",
+    "title": "My Watchlist",
+    "description": "Keep track of properties you're interested in and never miss an investment opportunity",
+    "yourWatchlist": "Your Watchlist",
+    "itemCount": "{count, plural, =0 {No items} =1 {1 item} other {# items}} in your watchlist",
+    "viewProject": "View Project",
+    "loginRequired": {
+      "title": "Sign in to view your watchlist",
+      "description": "Create an account or sign in to start saving your favorite investment properties",
+      "button": "Sign In"
+    },
+    "empty": {
+      "title": "Your watchlist is empty",
+      "description": "Start exploring our investment opportunities and add properties you're interested in",
+      "button": "Browse Projects"
+    },
+    "error": {
+      "title": "Unable to load watchlist"
+    }
   }
 }

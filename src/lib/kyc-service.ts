@@ -56,64 +56,158 @@ interface KYCResult {
 
 // Different KYC providers based on region
 class DIDitVerifier {
-  private apiKey: string;
+  private clientId: string;
+  private clientSecret: string;
   private baseUrl: string;
+  private accessToken: string | null = null;
+  private tokenExpiry: Date | null = null;
 
   constructor() {
-    this.apiKey = process.env.DIDIT_API_KEY!;
-    this.baseUrl = process.env.DIDIT_BASE_URL || 'https://api.didit.me/v1';
+    this.clientId = process.env.DIDIT_CLIENT_ID || 'cAZsSyfcdX3IUOZlChrsjQ';
+    this.clientSecret = process.env.DIDIT_CLIENT_SECRET || 'DyBZga1hQhLI6MV2dhmq5fYsn25n4FP8JkmXN0-fOno';
+    this.baseUrl = process.env.DIDIT_BASE_URL || 'https://api.didit.id';
+  }
+
+  private async getAccessToken(): Promise<string> {
+    // Check if we have a valid token
+    if (this.accessToken && this.tokenExpiry && this.tokenExpiry > new Date()) {
+      return this.accessToken;
+    }
+
+    try {
+      // Get new OAuth2 token
+      const tokenResponse = await fetch(`${this.baseUrl}/oauth/token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          grant_type: 'client_credentials',
+          client_id: this.clientId,
+          client_secret: this.clientSecret,
+          scope: 'verification:create verification:read'
+        }),
+      });
+
+      if (!tokenResponse.ok) {
+        throw new Error('Failed to get access token');
+      }
+
+      const tokenData = await tokenResponse.json();
+      this.accessToken = tokenData.access_token;
+      this.tokenExpiry = new Date(Date.now() + (tokenData.expires_in * 1000));
+      
+      return this.accessToken!;
+    } catch (error) {
+      console.error('DIDit token error:', error);
+      throw new Error('Failed to authenticate with DIDit');
+    }
   }
 
   async verifyIdentity(kycData: KYCData): Promise<KYCResult> {
     try {
-      const payload = {
-        personal_info: {
-          first_name: kycData.firstName,
-          last_name: kycData.lastName,
-          date_of_birth: kycData.dateOfBirth,
-          nationality: kycData.nationality,
-          email: kycData.email,
-          phone: kycData.phone,
-        },
-        address: kycData.address,
-        documents: {
-          identity: kycData.identityDocument,
-          address_proof: kycData.addressProof,
-        },
-        compliance: {
-          pep_check: kycData.pep,
-          sanctions_check: kycData.sanctionsCheck,
-          tax_residents: kycData.taxResident,
-        }
-      };
+      const token = await this.getAccessToken();
 
-      const response = await fetch(`${this.baseUrl}/verify`, {
+      // Step 1: Create verification session
+      const sessionResponse = await fetch(`${this.baseUrl}/v1/verifications`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          type: 'identity_verification',
+          user: {
+            first_name: kycData.firstName,
+            last_name: kycData.lastName,
+            date_of_birth: kycData.dateOfBirth,
+            email: kycData.email,
+            phone: kycData.phone,
+            nationality: kycData.nationality,
+            address: {
+              street: kycData.address.street,
+              city: kycData.address.city,
+              state: kycData.address.state,
+              postal_code: kycData.address.postalCode,
+              country: kycData.address.country,
+            }
+          },
+          documents: {
+            identity_document: {
+              type: kycData.identityDocument.type,
+              front_image: kycData.identityDocument.front,
+              back_image: kycData.identityDocument.back,
+            },
+            proof_of_address: {
+              type: kycData.addressProof.type,
+              image: kycData.addressProof.document,
+            },
+            selfie: kycData.identityDocument.selfie,
+          },
+          checks: {
+            document_verification: true,
+            facial_recognition: true,
+            address_verification: true,
+            pep_screening: true,
+            sanctions_screening: true,
+            adverse_media: true,
+          }
+        }),
       });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || 'Verification failed');
+      if (!sessionResponse.ok) {
+        const error = await sessionResponse.json();
+        throw new Error(error.message || 'Failed to create verification session');
       }
+
+      const session = await sessionResponse.json();
+
+      // Step 2: Process verification (this might be async in production)
+      const verificationId = session.id;
+      
+      // Poll for verification result (in production, use webhooks)
+      const result = await this.pollVerificationResult(verificationId, token);
 
       return {
         status: this.mapStatus(result.status),
-        confidence: result.confidence || 0,
-        verificationId: result.verification_id,
-        reasons: result.reasons,
-        nextSteps: result.next_steps,
+        confidence: result.confidence_score || 0,
+        verificationId: verificationId,
+        reasons: result.rejection_reasons || [],
+        nextSteps: result.next_steps || [],
       };
 
     } catch (error) {
       console.error('DIDit verification error:', error);
       throw new Error('Identity verification failed');
     }
+  }
+
+  private async pollVerificationResult(verificationId: string, token: string): Promise<any> {
+    const maxAttempts = 30;
+    const delayMs = 2000;
+
+    for (let i = 0; i < maxAttempts; i++) {
+      const response = await fetch(`${this.baseUrl}/v1/verifications/${verificationId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get verification status');
+      }
+
+      const result = await response.json();
+
+      if (result.status !== 'processing' && result.status !== 'pending') {
+        return result;
+      }
+
+      // Wait before next poll
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+    }
+
+    throw new Error('Verification timeout');
   }
 
   private mapStatus(status: string): 'pending' | 'approved' | 'rejected' | 'requires_review' {

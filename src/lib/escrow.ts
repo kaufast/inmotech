@@ -181,7 +181,7 @@ class EscrowService {
 
       // Update database
       await prisma.escrowTransaction.updateMany({
-        where: { depositId },
+        where: { depositId: depositId },
         data: {
           status: 'REFUNDED',
           refundedAt: new Date(),
@@ -261,7 +261,7 @@ class EscrowService {
   private async updateEscrowFromEvent(depositId: string, status: string): Promise<void> {
     try {
       await prisma.escrowTransaction.updateMany({
-        where: { depositId },
+        where: { depositId: depositId },
         data: { status }
       });
     } catch (error) {

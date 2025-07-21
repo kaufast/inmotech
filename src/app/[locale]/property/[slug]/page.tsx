@@ -61,7 +61,7 @@ interface PropertyPageProps {
 export default function PropertyPage({ params }: PropertyPageProps) {
   const t = useTranslations();
   const pathname = usePathname();
-  const locale = pathname.split('/')[1];
+  const locale = pathname?.split('/')[1] || 'en-GB';
   const { slug } = params;
   
   const [selectedImage, setSelectedImage] = React.useState(0);

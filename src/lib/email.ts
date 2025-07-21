@@ -1,6 +1,13 @@
 // AWS SES Email Integration
 
 import { SESClient, SendEmailCommand, SendTemplatedEmailCommand } from '@aws-sdk/client-ses';
+import dotenv from 'dotenv';
+import path from 'path';
+
+// Load environment variables if not already loaded
+if (!process.env.AWS_ACCESS_KEY_ID) {
+  dotenv.config({ path: path.join(process.cwd(), '.env.local') });
+}
 
 const sesClient = new SESClient({
   region: process.env.AWS_REGION || 'us-east-1',
@@ -36,7 +43,7 @@ interface EmailTemplate {
 }
 
 class EmailService {
-  private fromEmail = process.env.FROM_EMAIL || 'noreply@inmote.ch';
+  private fromEmail = process.env.SES_FROM_EMAIL || 'noreply@inmote.ch';
 
   // Send simple email
   async sendEmail(
