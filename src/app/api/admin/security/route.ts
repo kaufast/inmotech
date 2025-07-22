@@ -45,25 +45,8 @@ export const GET = requireAdmin(async (request: NextRequest) => {
       take: limit
     });
 
-    // Recently terminated sessions (as security events)
-    const terminatedSessions = await prisma.userSession.findMany({
-      where: {
-        terminatedAt: { gte: fromDate },
-        terminatedBy: { not: null }
-      },
-      include: {
-        user: {
-          select: {
-            email: true,
-            firstName: true,
-            lastName: true,
-            isAdmin: true
-          }
-        }
-      },
-      orderBy: { terminatedAt: 'desc' },
-      take: limit
-    });
+    // Recently terminated sessions (mock data until schema deployed)
+    const terminatedSessions = [] as any[];
 
     // Suspicious activity - users with multiple IPs in short time
     const suspiciousLogins = await prisma.$queryRaw`
@@ -177,21 +160,7 @@ export const GET = requireAdmin(async (request: NextRequest) => {
             lastLogin: user.lastLogin?.toISOString()
           }
         })),
-        terminatedSessions: terminatedSessions.map(session => ({
-          id: session.id,
-          type: 'session_terminated',
-          severity: session.terminatedBy === 'admin' ? 'medium' : 'low',
-          description: `Session terminated by ${session.terminatedBy}`,
-          timestamp: session.terminatedAt!.toISOString(),
-          userEmail: session.user.email,
-          userName: session.user.firstName || session.user.lastName ? `${session.user.firstName || ''} ${session.user.lastName || ''}`.trim() : null,
-          details: {
-            sessionId: session.id,
-            terminatedBy: session.terminatedBy,
-            deviceType: session.deviceType,
-            ipAddress: session.ipAddress
-          }
-        })),
+        terminatedSessions: [],
         suspiciousActivity: suspiciousLogins.map(activity => ({
           id: `suspicious_${activity.id}`,
           type: 'suspicious_login',

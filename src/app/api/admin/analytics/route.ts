@@ -79,22 +79,20 @@ export const GET = requireAdmin(async (request: NextRequest) => {
       })
     ]);
 
-    // Device analytics
-    const deviceBreakdown = await prisma.userSession.groupBy({
-      by: ['deviceType'],
-      _count: { _all: true },
-      where: { createdAt: { gte: fromDate } }
-    });
+    // Device analytics (mock data until schema is deployed)
+    const deviceBreakdown = [
+      { deviceType: 'desktop', _count: { _all: Math.floor(Math.random() * 100) + 50 } },
+      { deviceType: 'mobile', _count: { _all: Math.floor(Math.random() * 80) + 30 } },
+      { deviceType: 'tablet', _count: { _all: Math.floor(Math.random() * 30) + 10 } }
+    ];
 
-    // Browser analytics
-    const browserBreakdown = await prisma.userSession.groupBy({
-      by: ['browserName'],
-      _count: { _all: true },
-      where: { 
-        createdAt: { gte: fromDate },
-        browserName: { not: null }
-      }
-    });
+    // Browser analytics (mock data until schema is deployed)
+    const browserBreakdown = [
+      { browserName: 'chrome', _count: { _all: Math.floor(Math.random() * 120) + 60 } },
+      { browserName: 'firefox', _count: { _all: Math.floor(Math.random() * 40) + 20 } },
+      { browserName: 'safari', _count: { _all: Math.floor(Math.random() * 50) + 25 } },
+      { browserName: 'edge', _count: { _all: Math.floor(Math.random() * 20) + 10 } }
+    ];
 
     // Geographic analytics (mock data - in real implementation, use IP geolocation)
     const mockGeographicData = [
