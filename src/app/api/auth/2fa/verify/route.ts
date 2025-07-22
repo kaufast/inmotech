@@ -23,6 +23,9 @@ export async function POST(request: NextRequest) {
       select: {
         id: true,
         email: true,
+        firstName: true,
+        lastName: true,
+        isVerified: true,
         twoFactorSecret: true,
         twoFactorEnabled: true,
         twoFactorBackupCodes: true,
@@ -150,10 +153,10 @@ export async function POST(request: NextRequest) {
     const accessToken = await createSecureJWT(jwtPayload, '15m');
     
     // Generate refresh token
-    function generateSecureToken(length = 32): string {
+    const generateSecureToken = (length = 32): string => {
       const crypto = require('crypto');
       return crypto.randomBytes(length).toString('hex');
-    }
+    };
     const refreshToken = generateSecureToken();
     
     // Store refresh token in database

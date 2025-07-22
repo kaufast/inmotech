@@ -276,7 +276,7 @@ export default function UserSettings() {
               </div>
               
               {/* Two-Factor Authentication */}
-              <TwoFactorSetup user={user} token={token} />
+              <TwoFactorSetup user={user} token={token || ''} />
             </div>
           </div>
         )}
@@ -289,7 +289,7 @@ export default function UserSettings() {
               Session Management
             </h2>
             
-            <SessionManagement token={token} />
+            <SessionManagement token={token || ''} />
           </div>
         )}
 

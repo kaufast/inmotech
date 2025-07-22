@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       const { emailService } = await import('@/lib/email');
       await emailService.sendWelcomeEmail(
         user.email,
-        user.firstName,
+        user.firstName || 'User',
         emailVerificationToken
       );
     } catch (emailError) {

@@ -17,7 +17,7 @@ export default function EmailVerificationForm() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const locale = pathname?.split("/")[1] || "en-GB";
-  const token = searchParams.get('token');
+  const token = searchParams?.get('token');
 
   // Auto-verify if token is present
   useEffect(() => {

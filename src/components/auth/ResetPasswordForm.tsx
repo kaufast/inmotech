@@ -20,7 +20,7 @@ export default function ResetPasswordForm() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const locale = pathname?.split("/")[1] || "en-GB";
-  const token = searchParams.get('token');
+  const token = searchParams?.get('token');
 
   // Validate token on component mount
   useEffect(() => {

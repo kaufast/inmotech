@@ -25,6 +25,7 @@ export interface SecureUser {
   isVerified?: boolean;
   isAdmin?: boolean;
   kycStatus?: string | null;
+  twoFactorEnabled?: boolean;
   roles?: UserRole[];
   permissions?: string[];
 }
