@@ -1,3 +1,4 @@
+// @ts-ignore - Skip type checking for node-fetch in build
 import fetch from 'node-fetch';
 
 interface TestCase {

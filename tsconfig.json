@@ -25,5 +25,5 @@
     "types": ["@types/google.maps"]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "server", "scripts"]
+  "exclude": ["node_modules", "server", "scripts", "src/scripts"]
 }
