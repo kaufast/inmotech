@@ -36,6 +36,11 @@ declare namespace google {
       TERRAIN = 'terrain'
     }
     
+    enum Animation {
+      BOUNCE = 1,
+      DROP = 2
+    }
+    
     class Marker {
       constructor(options?: MarkerOptions);
       setMap(map: Map | null): void;
@@ -72,6 +77,7 @@ declare namespace google {
       map?: Map;
       title?: string;
       icon?: string | Icon | Symbol;
+      animation?: Animation;
     }
     
     interface InfoWindowOptions {
