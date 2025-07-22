@@ -96,6 +96,12 @@ const productionRequiredFields = [
 
 // Validate environment variables
 export function validateEnv(): z.infer<typeof envSchema> {
+  // Skip validation if explicitly disabled
+  if (process.env.SKIP_ENV_VALIDATION === 'true') {
+    console.log('⚠️ Environment validation skipped');
+    return process.env as any;
+  }
+  
   try {
     const parsed = envSchema.parse(process.env);
     
