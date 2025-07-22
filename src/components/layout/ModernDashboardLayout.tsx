@@ -18,9 +18,12 @@ import {
   LogOut,
   Calendar,
   MessageCircle,
-  Heart
+  Heart,
+  Crown,
+  Shield
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useRouter, usePathname } from 'next/navigation';
 import { useSecureAuth } from '@/contexts/SecureAuthContext';
 import { UserRoleBadge, useRoleBasedNavigation } from '@/components/auth/RoleBasedUI';
 
@@ -35,6 +38,9 @@ export const ModernDashboardLayout: React.FC<ModernDashboardLayoutProps> = ({ ch
   const [activeView, setActiveView] = useState('home');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const roleBasedNav = useRoleBasedNavigation();
+  const router = useRouter();
+  const pathname = usePathname();
+  const locale = pathname?.split('/')[1] || 'en-GB';
 
   const sidebarItems = [
     { id: 'home', icon: Home, label: t('home') },
@@ -42,6 +48,11 @@ export const ModernDashboardLayout: React.FC<ModernDashboardLayoutProps> = ({ ch
     { id: 'health', icon: BarChart3, label: t('healthStatus') },
     { id: 'planning', icon: Calendar, label: t('trainingPlanning') },
   ];
+
+  const handleAdminNavigation = () => {
+    router.push(`/${locale}/admin`);
+    setIsSidebarOpen(false);
+  };
 
   const secondaryItems = [
     { id: 'investments', icon: TrendingUp, label: t('myInvestments'), show: hasPermission('investments:read') },
@@ -53,6 +64,7 @@ export const ModernDashboardLayout: React.FC<ModernDashboardLayoutProps> = ({ ch
     { id: 'advanced-analytics', icon: BarChart3, label: 'Advanced Analytics', show: hasPermission('analytics:advanced') },
     { id: 'payments', icon: CreditCard, label: t('payments'), show: hasPermission('investments:read') },
     { id: 'user-management', icon: User, label: 'User Management', show: hasPermission('users:manage') },
+    { id: 'admin', icon: Crown, label: 'Admin Panel', show: user?.isAdmin, href: '/admin', divider: true, handler: handleAdminNavigation },
     { id: 'settings', icon: Settings, label: t('settings'), show: true },
   ].filter(item => item.show);
 
@@ -135,6 +147,22 @@ export const ModernDashboardLayout: React.FC<ModernDashboardLayoutProps> = ({ ch
         {/* Bottom Actions */}
         <div className="p-4 border-t border-gray-800/50">
           <div className="space-y-2">
+            {/* Admin Panel Button - Only for admin users */}
+            {user?.isAdmin && (
+              <>
+                <div className="border-t border-gray-700/50 my-2"></div>
+                <button 
+                  onClick={handleAdminNavigation}
+                  className="w-full flex items-center space-x-3 p-3 rounded-xl bg-gradient-to-r from-[#ED4F01]/20 to-[#FF6B35]/20 border border-[#ED4F01]/30 text-orange-300 hover:text-white hover:from-[#ED4F01]/30 hover:to-[#FF6B35]/30 transition-all duration-300"
+                >
+                  <Crown className="w-5 h-5 flex-shrink-0" />
+                  <span className={`font-medium whitespace-nowrap transition-opacity ${
+                    isSidebarOpen ? 'opacity-100' : 'opacity-0 lg:group-hover:opacity-100'
+                  }`}>Admin Panel</span>
+                </button>
+              </>
+            )}
+            
             <button className="w-full flex items-center space-x-3 p-3 rounded-xl text-gray-400 hover:text-white hover:bg-gray-800/50 transition-all duration-300">
               <Settings className="w-5 h-5 flex-shrink-0" />
               <span className={`font-medium whitespace-nowrap transition-opacity ${

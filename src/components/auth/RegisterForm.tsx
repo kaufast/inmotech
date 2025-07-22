@@ -4,7 +4,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSecureAuth } from '@/contexts/SecureAuthContext';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { TrendingUp, Rocket, Globe, Lock, ArrowRight } from 'lucide-react';
@@ -23,7 +23,7 @@ const registerSchema = z.object({
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterForm() {
-  const { register: registerUser, isLoading } = useAuth();
+  const { register: registerUser, isLoading } = useSecureAuth();
   const router = useRouter();
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "en-GB";
@@ -38,9 +38,9 @@ export default function RegisterForm() {
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      const { confirmPassword, ...userData } = data;
-      await registerUser(userData);
-      router.push(`/${locale}/dashboard`);
+      const { firstName, lastName, email, password } = data;
+      await registerUser(firstName, lastName, email, password);
+      router.push(`/${locale}/login`);
     } catch (error) {
       // Error is handled in the context
     }

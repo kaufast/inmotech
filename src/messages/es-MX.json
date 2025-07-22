@@ -142,7 +142,8 @@
       "annualReturn": "Retorno Anual",
       "vsTarget": "vs objetivo 8.0%",
       "nextPayment": "Próximo Pago",
-      "inDays": "en {days} días"
+      "inDays": "en {days} días",
+      "noData": "No hay datos disponibles"
     },
     "timeframes": {
       "week": "semana",

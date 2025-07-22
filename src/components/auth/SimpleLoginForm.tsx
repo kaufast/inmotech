@@ -5,15 +5,18 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { TrendingUp, ArrowRight } from 'lucide-react';
 import { useSecureAuth } from '@/contexts/SecureAuthContext';
+import TwoFactorVerification from './TwoFactorVerification';
 
 export default function SimpleLoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showTwoFactor, setShowTwoFactor] = useState(false);
+  const [twoFactorEmail, setTwoFactorEmail] = useState('');
   const router = useRouter();
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "en-GB";
-  const { login, isLoading } = useSecureAuth();
+  const { login, setUser, setToken, isLoading } = useSecureAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,15 +28,67 @@ export default function SimpleLoginForm() {
     }
     
     try {
-      await login(email, password);
-      setError('✅ Login successful! Redirecting...');
-      // Give a brief moment to show success message, then redirect
-      setTimeout(() => {
-        router.push(`/${locale}/dashboard`);
-      }, 500);
+      const response = await fetch('/api/auth/db-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+
+      // Check if 2FA is required
+      if (data.requiresTwoFactor) {
+        setTwoFactorEmail(data.email);
+        setShowTwoFactor(true);
+        return;
+      }
+
+      // Normal login success
+      if (data.user && data.tokens?.accessToken) {
+        setUser(data.user);
+        setToken(data.tokens.accessToken);
+        localStorage.setItem('refreshToken', data.tokens.refreshToken);
+        localStorage.setItem('sessionToken', data.tokens.sessionToken);
+        
+        setError('✅ Login successful! Redirecting...');
+        setTimeout(() => {
+          router.push(`/${locale}/dashboard`);
+        }, 500);
+      } else {
+        throw new Error('Invalid login response');
+      }
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Login failed');
     }
+  };
+
+  const handleTwoFactorSuccess = (data: any) => {
+    if (data.user && data.accessToken) {
+      setUser(data.user);
+      setToken(data.accessToken);
+      localStorage.setItem('refreshToken', data.refreshToken);
+      localStorage.setItem('sessionToken', data.sessionToken);
+      
+      setError('✅ Login successful! Redirecting...');
+      setTimeout(() => {
+        router.push(`/${locale}/dashboard`);
+      }, 500);
+    }
+  };
+
+  const handleBackToLogin = () => {
+    setShowTwoFactor(false);
+    setTwoFactorEmail('');
+    setError('');
   };
 
   return (
@@ -58,8 +113,16 @@ export default function SimpleLoginForm() {
       </div>
 
       <div className="relative z-10 flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
-        <div className="w-full max-w-md">
-          <div className="bg-black/40 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl p-8">
+        {showTwoFactor ? (
+          <TwoFactorVerification 
+            email={twoFactorEmail}
+            onSuccess={handleTwoFactorSuccess}
+            onBack={handleBackToLogin}
+            isLoading={isLoading}
+          />
+        ) : (
+          <div className="w-full max-w-md">
+            <div className="bg-black/40 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl p-8">
             <div className="mb-8">
               <h2 className="text-3xl font-bold mb-2">Welcome back</h2>
               <p className="text-gray-400">Sign in to continue to your dashboard</p>
@@ -99,7 +162,7 @@ export default function SimpleLoginForm() {
                   <input type="checkbox" className="w-4 h-4 rounded bg-white/10 border-white/20 text-orange-500 focus:ring-orange-500" />
                   <span className="ml-2 text-gray-400">Remember me</span>
                 </label>
-                <Link href="#" className="text-orange-400 hover:text-orange-300 transition-colors">
+                <Link href={`/${locale}/forgot-password`} className="text-orange-400 hover:text-orange-300 transition-colors">
                   Forgot password?
                 </Link>
               </div>
@@ -128,8 +191,9 @@ export default function SimpleLoginForm() {
                 </p>
               </div>
             </form>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

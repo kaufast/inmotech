@@ -36,10 +36,14 @@ export interface SecureAuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
+  register: (firstName: string, lastName: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
   verifyToken: () => Promise<boolean>;
   refreshAccessToken: () => Promise<boolean>;
+  // State setters for direct access
+  setUser: (user: SecureUser | null) => void;
+  setToken: (token: string | null) => void;
   // RBAC utilities
   hasRole: (roleName: string) => boolean;
   hasPermission: (permission: string) => boolean;
@@ -264,9 +268,62 @@ export function SecureAuthProvider({ children }: { children: React.ReactNode }) 
     }
   };
 
-  const logout = () => {
-    clearAuth();
-    toast.success('Logged out successfully');
+  const register = async (firstName: string, lastName: string, email: string, password: string) => {
+    try {
+      setIsLoading(true);
+      
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ firstName, lastName, email, password }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Registration failed');
+      }
+
+      const data = await response.json();
+      toast.success('Account created successfully! Please check your email to verify your account.');
+      
+    } catch (error) {
+      console.error('Registration error:', error);
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error('Registration failed');
+      }
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      const sessionToken = localStorage.getItem('sessionToken');
+      
+      if (sessionToken && token) {
+        // Call logout API to terminate session
+        await fetch('/api/auth/sessions/logout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ sessionToken })
+        });
+      }
+    } catch (error) {
+      console.error('Logout API error:', error);
+      // Continue with logout even if API fails
+    } finally {
+      clearAuth();
+      localStorage.removeItem('sessionToken');
+      toast.success('Logged out successfully');
+    }
   };
 
   const refreshUser = async () => {
@@ -335,10 +392,13 @@ export function SecureAuthProvider({ children }: { children: React.ReactNode }) 
     isLoading,
     isAuthenticated: !!user && !!token,
     login,
+    register,
     logout,
     refreshUser,
     verifyToken,
     refreshAccessToken,
+    setUser,
+    setToken,
     hasRole,
     hasPermission,
     hasAnyRole,

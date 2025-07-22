@@ -143,7 +143,8 @@
       "annualReturn": "Annual Return",
       "vsTarget": "vs target 8.0%",
       "nextPayment": "Next Payment",
-      "inDays": "in {days} days"
+      "inDays": "in {days} days",
+      "noData": "No data available"
     },
     "timeframes": {
       "week": "week",

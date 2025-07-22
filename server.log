@@ -93,3 +93,349 @@ Bcrypt verification result: true
  GET /api/dashboard/analytics 401 in 229ms
  GET /api/dashboard/analytics 401 in 229ms
  GET /api/dashboard/analytics 401 in 232ms
+ ○ Compiling /api/dashboard/analytics ...
+ ✓ Compiled /api/dashboard/analytics in 3.7s (1170 modules)
+ GET /api/dashboard/analytics 401 in 1847ms
+ GET /api/dashboard/analytics 401 in 1846ms
+ GET /api/dashboard/analytics 401 in 1818ms
+ GET /api/dashboard/analytics 401 in 1851ms
+ ✓ Compiled in 943ms (582 modules)
+ ✓ Compiled in 592ms (582 modules)
+ ✓ Compiled in 506ms (582 modules)
+ ✓ Compiled in 541ms (582 modules)
+ GET /api/dashboard/analytics 401 in 36ms
+ GET /api/dashboard/analytics 401 in 38ms
+ GET /api/dashboard/analytics 401 in 37ms
+ GET /api/dashboard/analytics 401 in 36ms
+ ✓ Compiled in 2.3s (1184 modules)
+ ✓ Compiled /api/auth/refresh in 249ms (147 modules)
+Token refresh error:  [NeonDbError: null value in column "id" of relation "refresh_tokens" violates not-null constraint] {
+  name: 'NeonDbError',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (null, cmde6heq100001wraupzvt8y9, 1966a8221fb9545cf2107ad5405cab9c1f94ffa084408aab7d359688d7c84408, 2025-08-21 09:06:59.064, f, 2025-07-22 07:06:59.13).',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'refresh_tokens',
+  column: 'id',
+  dataType: undefined,
+  constraint: undefined,
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints',
+  sourceError: undefined
+}
+ POST /api/auth/refresh 500 in 1303ms
+ ✓ Compiled in 410ms (582 modules)
+ ✓ Compiled in 382ms (582 modules)
+ ✓ Compiled in 1229ms (1061 modules)
+ ✓ Compiled in 725ms (582 modules)
+ ✓ Compiled in 401ms (582 modules)
+ ✓ Compiled in 413ms (582 modules)
+ ⨯ TypeError: Cannot read properties of undefined (reading 'entryCSSFiles')
+    at rT (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:39:3772)
+    at J.ctx (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:39:6088)
+    at rU (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:39:6966)
+    at /Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:39:5234
+    at /Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/trace/tracer.js:140:36
+    at NoopContextManager.with (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+    at ProxyTracer.startActiveSpan (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854)
+    at /Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/trace/tracer.js:122:103
+    at NoopContextManager.with (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NextTracerImpl.trace (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/trace/tracer.js:122:28)
+    at rL (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:39:5165)
+    at rW (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:39:12710)
+    at r0 (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:39:16204)
+    at r3 (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:39:23911)
+    at /Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:42:726
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_hooks:91:14)
+    at Object.wrap (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:36:17827)
+    at /Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:42:616
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_hooks:91:14)
+    at Object.wrap (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:36:16929)
+    at r8 (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:42:543)
+    at nh.render (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:42:4699)
+    at doRender (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/base-server.js:1427:44)
+    at cacheEntry.responseCache.get.routeKind (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/base-server.js:1588:34)
+    at ResponseCache.get (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/response-cache/index.js:49:26)
+    at DevServer.renderToResponseWithComponentsImpl (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/base-server.js:1496:53)
+    at async DevServer.renderPageComponent (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/router-server.js:179:21)
+    at async handleRequest (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/router-server.js:359:24)
+    at async requestHandlerImpl (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/router-server.js:383:13)
+    at async Server.requestListener (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  page: '/en-GB/login'
+}
+ ⨯ TypeError: Cannot read properties of undefined (reading 'clientModules')
+    at /Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:39:25703
+    at /Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/trace/tracer.js:191:62
+    at /Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/trace/tracer.js:140:36
+    at NoopContextManager.with (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+    at ProxyTracer.startActiveSpan (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854)
+    at /Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/trace/tracer.js:122:103
+    at NoopContextManager.with (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NextTracerImpl.trace (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/trace/tracer.js:122:28)
+    at /Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/trace/tracer.js:191:31
+    at r3 (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:41:1678)
+    at async doRender (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/base-server.js:1427:30)
+    at async cacheEntry.responseCache.get.routeKind (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/base-server.js:1588:28) {
+  page: '/en-GB/login'
+}
+ GET /en-GB/login 500 in 234ms
+ ✓ Compiled in 396ms (582 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /en-GB/login 200 in 128ms
+ ✓ Compiled in 387ms (582 modules)
+ ✓ Compiled in 1396ms (1061 modules)
+ ✓ Compiled in 756ms (582 modules)
+ ✓ Compiled in 843ms (582 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/melchor/Downloads/Personal/WebDev/inmotech/.next/cache/webpack/client-development/0.pack.gz_' -> '/Users/melchor/Downloads/Personal/WebDev/inmotech/.next/cache/webpack/client-development/0.pack.gz'
+ ✓ Compiled /api/auth/db-login in 211ms (153 modules)
+ POST /api/auth/db-login 401 in 782ms
+ ✓ Compiled in 2.1s (1061 modules)
+ ✓ Compiled in 1170ms (1061 modules)
+ ✓ Compiled in 909ms (1061 modules)
+ ✓ Compiled in 1416ms (1061 modules)
+ ✓ Compiled in 1110ms (1061 modules)
+ ✓ Compiled in 724ms (1061 modules)
+ ✓ Compiled in 1080ms (1061 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/melchor/Downloads/Personal/WebDev/inmotech/.next/cache/webpack/client-development/0.pack.gz_' -> '/Users/melchor/Downloads/Personal/WebDev/inmotech/.next/cache/webpack/client-development/0.pack.gz'
+ ✓ Compiled in 403ms (582 modules)
+ ✓ Compiled in 390ms (582 modules)
+ ✓ Compiled in 334ms (582 modules)
+ ✓ Compiled in 250ms (582 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/melchor/Downloads/Personal/WebDev/inmotech/.next/cache/webpack/client-development/0.pack.gz_' -> '/Users/melchor/Downloads/Personal/WebDev/inmotech/.next/cache/webpack/client-development/0.pack.gz'
+ ○ Compiling /api/auth/2fa/setup ...
+ ✓ Compiled /api/auth/2fa/setup in 648ms (604 modules)
+JWT verification error: Error: Invalid JWT signature
+    at verifySecureJWT (webpack-internal:///(rsc)/./src/lib/edge-crypto.ts:151:19)
+    at async POST (webpack-internal:///(rsc)/./src/app/api/auth/2fa/setup/route.ts:35:23)
+    at async /Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+    at async eT.execute (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:46851)
+    at async eT.handle (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:58760)
+    at async doRender (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/base-server.js:1496:28)
+    at async DevServer.renderPageComponent (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/base-server.js:818:17)
+    at async /Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/router-server.js:179:21)
+    at async handleRequest (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/router-server.js:359:24)
+    at async requestHandlerImpl (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/router-server.js:383:13)
+    at async Server.requestListener (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/start-server.js:141:13)
+ POST /api/auth/2fa/setup 401 in 827ms
+ ✓ Compiled in 269ms (582 modules)
+ ✓ Compiled in 147ms (582 modules)
+ ✓ Compiled in 154ms (582 modules)
+ ✓ Compiled in 286ms (582 modules)
+ ✓ Compiled in 331ms (582 modules)
+ ✓ Compiled in 305ms (582 modules)
+ ✓ Compiled in 284ms (582 modules)
+ ✓ Compiled in 372ms (582 modules)
+ ✓ Compiled in 542ms (1075 modules)
+ ✓ Compiled in 310ms (1075 modules)
+ ✓ Compiled in 308ms (1075 modules)
+ ⨯ ./src/components/auth/SimpleLoginForm.tsx
+Error: 
+  [31mx[0m Unexpected token `div`. Expected jsx identifier
+    ,-[[36;1;4m/Users/melchor/Downloads/Personal/WebDev/inmotech/src/components/auth/SimpleLoginForm.tsx[0m:90:1]
+ [2m90[0m |   };
+ [2m91[0m | 
+ [2m92[0m |   return (
+ [2m93[0m |     <div className="min-h-screen bg-black text-white overflow-hidden relative">
+    : [31;1m     ^^^[0m
+ [2m94[0m |       {/* Background Gradient Effects */}
+ [2m95[0m |       <div className="absolute inset-0 overflow-hidden">
+ [2m96[0m |         <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"></div>
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/auth/SimpleLoginForm.tsx
+./src/app/[locale]/login/page.tsx
+ GET /en-GB/login 500 in 36ms
+ ✓ Compiled /_not-found in 472ms (1073 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /_next/static/webpack/06e07d6fb1b59553.webpack.hot-update.json 404 in 480ms
+ GET /en-GB/login 200 in 29ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/melchor/Downloads/Personal/WebDev/inmotech/.next/cache/webpack/client-development/0.pack.gz_' -> '/Users/melchor/Downloads/Personal/WebDev/inmotech/.next/cache/webpack/client-development/0.pack.gz'
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/melchor/Downloads/Personal/WebDev/inmotech/.next/cache/webpack/server-development/2.pack.gz_' -> '/Users/melchor/Downloads/Personal/WebDev/inmotech/.next/cache/webpack/server-development/2.pack.gz'
+ ✓ Compiled / in 177ms (501 modules)
+ GET / 200 in 298ms
+ ✓ Compiled /[locale] in 139ms (503 modules)
+ ✓ Compiled /api/auth/db-login in 374ms (153 modules)
+ POST /api/auth/db-login 401 in 1264ms
+ POST /api/auth/db-login 401 in 334ms
+ POST /api/auth/db-login 401 in 353ms
+ ✓ Compiled /[locale]/forgot-password in 227ms (1087 modules)
+ ○ Compiling /api/auth/forgot-password ...
+ ✓ Compiled /api/auth/forgot-password in 1782ms (1267 modules)
+ POST /api/auth/forgot-password 200 in 3051ms
+ ✓ Compiled in 781ms (1096 modules)
+ ✓ Compiled / in 392ms (508 modules)
+ ✓ Compiled /_not-found in 117ms (509 modules)
+ GET / 404 in 982ms
+ GET / 404 in 455ms
+ GET / 404 in 436ms
+ GET / 404 in 438ms
+ GET / 404 in 429ms
+ GET / 404 in 432ms
+ GET / 404 in 436ms
+ GET / 404 in 433ms
+ ⨯ Error: Invariant: missing bootstrap script. This is a bug in Next.js
+    at rR (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:39:2277)
+    at /Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:39:25591
+    at /Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/trace/tracer.js:191:62
+    at /Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/trace/tracer.js:140:36
+    at NoopContextManager.with (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+    at ProxyTracer.startActiveSpan (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854)
+    at /Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/trace/tracer.js:122:103
+    at NoopContextManager.with (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NextTracerImpl.trace (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/trace/tracer.js:122:28)
+    at /Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/trace/tracer.js:191:31
+    at r3 (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:41:1678)
+    at async doRender (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/base-server.js:1427:30)
+    at async cacheEntry.responseCache.get.routeKind (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/base-server.js:1588:28) {
+  page: '/'
+}
+ GET / 500 in 280ms
+ ⨯ Error: Invariant: missing bootstrap script. This is a bug in Next.js
+    at rR (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:39:2277)
+    at /Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:39:25591
+    at /Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/trace/tracer.js:191:62
+    at /Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/trace/tracer.js:140:36
+    at NoopContextManager.with (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+    at ProxyTracer.startActiveSpan (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854)
+    at /Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/trace/tracer.js:122:103
+    at NoopContextManager.with (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NextTracerImpl.trace (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/trace/tracer.js:122:28)
+    at /Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/lib/trace/tracer.js:191:31
+    at r3 (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:41:1678)
+    at async doRender (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/base-server.js:1427:30)
+    at async cacheEntry.responseCache.get.routeKind (/Users/melchor/Downloads/Personal/WebDev/inmotech/node_modules/next/dist/server/base-server.js:1588:28) {
+  page: '/'
+}
+ GET / 500 in 121ms
+ ✓ Compiled in 1380ms (591 modules)
+ ✓ Compiled in 276ms (591 modules)
+ ✓ Compiled in 1109ms (1082 modules)
+ ✓ Compiled /api/dev/users in 207ms (534 modules)
+ GET /api/dev/users 200 in 1916ms
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from /Users/melchor/Downloads/Personal/WebDev/inmotech/.next/cache/webpack/client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 433ms (591 modules)
+ ✓ Compiled in 295ms (591 modules)
+ ✓ Compiled in 527ms (1096 modules)
+ ✓ Compiled in 243ms (1082 modules)
+ ✓ Compiled in 413ms (1082 modules)
+ ✓ Compiled in 259ms (1082 modules)
+ ✓ Compiled in 225ms (1082 modules)
+ ✓ Compiled in 383ms (591 modules)
+ ✓ Compiled in 1121ms (1096 modules)
+ ✓ Compiled in 1059ms (1095 modules)
+ ✓ Compiled in 689ms (1099 modules)
+ GET /en-GB/login 200 in 229ms
+ ○ Compiling /api/auth/db-login ...
+ ✓ Compiled /api/auth/db-login in 1308ms (153 modules)
+Bcrypt hash detected - using bcrypt-ts verification
+Bcrypt verification result: true
+Bcrypt hash detected - using bcrypt-ts verification
+ POST /api/auth/db-login 200 in 3707ms
+Bcrypt verification result: true
+ POST /api/auth/db-login 200 in 1167ms
+Bcrypt hash detected - using bcrypt-ts verification
+Bcrypt verification result: true
+ POST /api/auth/db-login 200 in 1485ms
+Bcrypt hash detected - using bcrypt-ts verification
+Bcrypt verification result: true
+Bcrypt hash detected - using bcrypt-ts verification
+ POST /api/auth/db-login 200 in 1369ms
+Bcrypt verification result: true
+ POST /api/auth/db-login 200 in 1012ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/melchor/Downloads/Personal/WebDev/inmotech/.next/cache/webpack/client-development/0.pack.gz_' -> '/Users/melchor/Downloads/Personal/WebDev/inmotech/.next/cache/webpack/client-development/0.pack.gz'
+Bcrypt hash detected - using bcrypt-ts verification
+Bcrypt verification result: true
+ POST /api/auth/db-login 200 in 1420ms
+Bcrypt hash detected - using bcrypt-ts verification
+Bcrypt verification result: true
+ POST /api/auth/db-login 200 in 942ms
+Bcrypt hash detected - using bcrypt-ts verification
+Bcrypt verification result: true
+ POST /api/auth/db-login 200 in 895ms
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from /Users/melchor/Downloads/Personal/WebDev/inmotech/.next/cache/webpack/client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 2.2s (1099 modules)
+ GET /en-GB/login 200 in 102ms
+Bcrypt hash detected - using bcrypt-ts verification
+Bcrypt verification result: true
+ POST /api/auth/db-login 200 in 1370ms
+Bcrypt hash detected - using bcrypt-ts verification
+Bcrypt verification result: true
+ POST /api/auth/db-login 200 in 815ms
+ ○ Compiling /api/dashboard/analytics ...
+ ✓ Compiled /api/dashboard/analytics in 540ms (615 modules)
+ GET /api/dashboard/analytics 401 in 746ms
+ GET /api/dashboard/analytics 401 in 746ms
+ GET /api/dashboard/analytics 401 in 746ms
+ GET /api/dashboard/analytics 401 in 749ms
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from /Users/melchor/Downloads/Personal/WebDev/inmotech/.next/cache/webpack/client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 3.7s (593 modules)
+ ✓ Compiled in 562ms (593 modules)
+ ✓ Compiled in 477ms (593 modules)
+ ✓ Compiled in 331ms (593 modules)
+ ✓ Compiled in 681ms (593 modules)
+ ✓ Compiled in 1880ms (1099 modules)
+ ✓ Compiled in 778ms (1099 modules)
+ ✓ Compiled in 400ms (1085 modules)
+ ✓ Compiled in 432ms (593 modules)
+ ✓ Compiled in 417ms (593 modules)
+ ✓ Compiled in 415ms (593 modules)
+ ✓ Compiled in 307ms (593 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/melchor/Downloads/Personal/WebDev/inmotech/.next/cache/webpack/client-development/0.pack.gz_' -> '/Users/melchor/Downloads/Personal/WebDev/inmotech/.next/cache/webpack/client-development/0.pack.gz'
+ ✓ Compiled in 417ms (593 modules)
+ ✓ Compiled in 299ms (593 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/melchor/Downloads/Personal/WebDev/inmotech/.next/cache/webpack/client-development/0.pack.gz_' -> '/Users/melchor/Downloads/Personal/WebDev/inmotech/.next/cache/webpack/client-development/0.pack.gz'
+ GET /en-GB/dashboard 200 in 526ms
+ ○ Compiling /api/auth/db-login ...
+ ✓ Compiled /api/auth/db-login in 1381ms (153 modules)
+Bcrypt hash detected - using bcrypt-ts verification
+Bcrypt hash detected - using bcrypt-ts verification
+Bcrypt verification result: true
+Bcrypt verification result: true
+ POST /api/auth/db-login 200 in 4011ms
+ POST /api/auth/db-login 200 in 1677ms
+ ○ Compiling /api/dashboard/analytics ...
+Bcrypt hash detected - using bcrypt-ts verification
+Bcrypt verification result: true
+ POST /api/auth/db-login 200 in 1418ms
+Bcrypt hash detected - using bcrypt-ts verification
+Bcrypt verification result: true
+ POST /api/auth/db-login 200 in 959ms

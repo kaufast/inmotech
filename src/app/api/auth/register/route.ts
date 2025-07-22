@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-fallback-secret';
@@ -44,17 +45,42 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
+    // Generate email verification token
+    const emailVerificationToken = crypto.randomUUID();
+
     // Create user
     const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
         firstName,
-        lastName
+        lastName,
+        emailVerificationToken,
+        isVerified: false // Explicitly set to false until email is verified
       }
     });
 
-    // Generate JWT token
+    // Send verification email
+    try {
+      const { emailService } = await import('@/lib/email');
+      await emailService.sendWelcomeEmail(
+        user.email,
+        user.firstName,
+        emailVerificationToken
+      );
+    } catch (emailError) {
+      console.error('Failed to send welcome email:', emailError);
+      // Don't fail registration if email fails
+    }
+
+    // Development: Log verification URL to console for testing
+    const verificationUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/en-GB/verify-email?token=${emailVerificationToken}`;
+    console.log('📧 EMAIL VERIFICATION URL (For Testing):');
+    console.log('👤 User:', user.email);
+    console.log('🔗 Verification URL:', verificationUrl);
+    console.log('=' .repeat(80));
+
+    // Generate JWT token (user can still login but should verify email)
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
 
     // Return success response

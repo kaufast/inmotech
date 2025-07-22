@@ -22,10 +22,13 @@ export async function POST(request: NextRequest) {
 
     // Always return success to prevent email enumeration
     if (!user) {
+      console.log('❌ Password reset requested for non-existent email:', email);
       return NextResponse.json({
         message: 'If an account exists, a reset email has been sent'
       });
     }
+
+    console.log('✅ Password reset requested for existing user:', user.email);
 
     // Generate reset token
     const resetToken = crypto.randomBytes(32).toString('hex');
@@ -51,6 +54,14 @@ export async function POST(request: NextRequest) {
       console.error('Failed to send reset email:', emailError);
       // Don't expose email errors to user
     }
+
+    // Development: Log reset URL to console for testing
+    const resetUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/en-GB/reset-password?token=${resetToken}`;
+    console.log('🔑 PASSWORD RESET URL (For Testing):');
+    console.log('📧 Email:', user.email);
+    console.log('🔗 Reset URL:', resetUrl);
+    console.log('⏰ Expires in 1 hour');
+    console.log('=' .repeat(80));
 
     return NextResponse.json({
       message: 'If an account exists, a reset email has been sent'

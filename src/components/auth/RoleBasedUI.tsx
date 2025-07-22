@@ -112,32 +112,24 @@ export function ShowForProjectManagement({ children, fallback }: ConditionalRend
 export function UserRoleBadge() {
   const { user } = useSecureAuth();
   
-  if (!user?.roles || user.roles.length === 0) {
-    return <span className="px-2 py-1 text-xs bg-gray-600 text-gray-300 rounded">No Role</span>;
+  if (!user) {
+    return <span className="px-2 py-1 text-xs bg-gray-600 text-gray-300 rounded">Guest</span>;
   }
 
-  const primaryRole = user.roles[0];
-  
-  const roleColors = {
-    investor: 'bg-blue-600 text-blue-100',
-    property_manager: 'bg-green-600 text-green-100', 
-    analyst: 'bg-purple-600 text-purple-100',
-    admin: 'bg-red-600 text-red-100'
-  } as const;
+  // For now, we use isAdmin flag to determine role
+  // TODO: Implement full RBAC with roles table
+  if (user.isAdmin) {
+    return (
+      <span className="px-2 py-1 text-xs rounded font-medium bg-orange-600 text-orange-100">
+        Administrator
+      </span>
+    );
+  }
 
-  const roleLabels = {
-    investor: 'Investor',
-    property_manager: 'Property Manager',
-    analyst: 'Analyst', 
-    admin: 'Administrator'
-  } as const;
-
-  const colorClass = roleColors[primaryRole.name as keyof typeof roleColors] || 'bg-gray-600 text-gray-300';
-  const label = roleLabels[primaryRole.name as keyof typeof roleLabels] || primaryRole.name;
-
+  // Default user role
   return (
-    <span className={`px-2 py-1 text-xs rounded font-medium ${colorClass}`}>
-      {label}
+    <span className="px-2 py-1 text-xs rounded font-medium bg-blue-600 text-blue-100">
+      User
     </span>
   );
 }
@@ -152,23 +144,33 @@ export function UserPermissionsDebug() {
   
   return (
     <div className="fixed bottom-4 right-4 bg-black/90 text-white p-4 rounded-lg text-xs max-w-sm max-h-96 overflow-auto z-50">
-      <h4 className="font-bold mb-2">Debug: User Permissions</h4>
+      <h4 className="font-bold mb-2">Debug: User Info</h4>
       
       <div className="mb-2">
-        <strong>Roles:</strong>
-        {user?.roles?.map(role => (
-          <div key={role.name} className="ml-2">
-            - {role.name}
-          </div>
-        )) || 'None'}
+        <strong>User:</strong>
+        <div className="ml-2">
+          {user?.firstName} {user?.lastName} ({user?.email})
+        </div>
+      </div>
+      
+      <div className="mb-2">
+        <strong>Admin Status:</strong>
+        <div className="ml-2">
+          {user?.isAdmin ? 'Administrator' : 'Regular User'}
+        </div>
+      </div>
+      
+      <div className="mb-2">
+        <strong>Verified:</strong>
+        <div className="ml-2">
+          {user?.isVerified ? 'Yes' : 'No'}
+        </div>
       </div>
       
       <div>
-        <strong>Permissions:</strong>
-        <div className="ml-2 max-h-32 overflow-y-auto">
-          {user?.permissions?.map(permission => (
-            <div key={permission}>- {permission}</div>
-          )) || 'None'}
+        <strong>2FA:</strong>
+        <div className="ml-2">
+          {user?.twoFactorEnabled ? 'Enabled' : 'Disabled'}
         </div>
       </div>
     </div>
