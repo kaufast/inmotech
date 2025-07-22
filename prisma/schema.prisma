@@ -48,6 +48,11 @@ model User {
   userRoles UserRole[]
   userAuditLogs AuditLog[] @relation("UserAuditLogs")
   adminAuditLogs AuditLog[] @relation("AdminAuditLogs")
+  
+  // Property Relations
+  ownedProperties Property[] @relation("PropertyOwner")
+  managedProperties Property[] @relation("PropertyAgent")
+  propertyWatchlist PropertyWatchlist[] @relation("PropertyWatchlistUser")
 
   @@map("users")
 }
@@ -349,4 +354,156 @@ model AuditLog {
   @@index([entityType, entityId])
   
   @@map("audit_logs")
+}
+
+// Property Management System
+model Property {
+  id                String   @id @default(cuid())
+  title             String
+  description       String?
+  propertyType      String   @map("property_type") // apartment, house, commercial, office, warehouse
+  listingType       String   @map("listing_type") // sale, rent, both
+  status            String   @default("ACTIVE") // ACTIVE, SOLD, RENTED, PENDING, INACTIVE
+  
+  // Location
+  address           String
+  city              String
+  state             String?
+  country           String   @default("Spain")
+  postalCode        String   @map("postal_code")
+  latitude          Float?
+  longitude         Float?
+  neighborhood      String?
+  
+  // Property Details
+  bedrooms          Int?
+  bathrooms         Int?
+  totalArea         Float?   @map("total_area") // in square meters
+  livingArea        Float?   @map("living_area") // in square meters
+  plotSize          Float?   @map("plot_size") // in square meters for houses
+  floor             Int?     // floor number for apartments
+  totalFloors       Int?     @map("total_floors")
+  yearBuilt         Int?     @map("year_built")
+  
+  // Pricing
+  salePrice         Float?   @map("sale_price")
+  rentPrice         Float?   @map("rent_price") // monthly rent
+  currency          String   @default("EUR")
+  pricePerSqm       Float?   @map("price_per_sqm")
+  
+  // Property Features
+  features          Json?    // Pool, garage, terrace, elevator, AC, heating, etc.
+  amenities         Json?    // Nearby schools, hospitals, transport, shops, etc.
+  condition         String?  // excellent, good, needs_renovation, new_construction
+  energyRating      String?  @map("energy_rating") // A, B, C, D, E, F, G
+  
+  // Media and Documents
+  images            String[] @default([])
+  floorPlans        String[] @default([]) @map("floor_plans")
+  documents         String[] @default([])
+  virtualTourUrl    String?  @map("virtual_tour_url")
+  
+  // Ownership and Management
+  ownerId           String   @map("owner_id")
+  agentId           String?  @map("agent_id") // Real estate agent managing the property
+  
+  // Investment Information (if applicable)
+  isInvestmentProperty Boolean @default(false) @map("is_investment_property")
+  expectedRoi       Float?   @map("expected_roi") // Expected return on investment
+  rentalYield       Float?   @map("rental_yield")
+  
+  // Visibility and Marketing
+  isFeatured        Boolean  @default(false) @map("is_featured")
+  isPublished       Boolean  @default(true) @map("is_published")
+  publishedAt       DateTime? @map("published_at")
+  views             Int      @default(0)
+  inquiries         Int      @default(0)
+  
+  // Timestamps
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  owner             User              @relation("PropertyOwner", fields: [ownerId], references: [id])
+  agent             User?             @relation("PropertyAgent", fields: [agentId], references: [id])
+  inquiries_list    PropertyInquiry[]
+  viewings          PropertyViewing[]
+  watchlistedBy     PropertyWatchlist[]
+  
+  // Search and filter indexes
+  @@index([propertyType, city])
+  @@index([listingType, status])
+  @@index([city, propertyType, listingType])
+  @@index([salePrice, rentPrice])
+  @@index([bedrooms, bathrooms])
+  @@index([isPublished, status])
+  @@index([ownerId])
+  @@index([agentId])
+  
+  @@map("properties")
+}
+
+model PropertyInquiry {
+  id            String   @id @default(cuid())
+  propertyId    String   @map("property_id")
+  inquirerName  String   @map("inquirer_name")
+  inquirerEmail String   @map("inquirer_email")
+  inquirerPhone String?  @map("inquirer_phone")
+  message       String
+  inquiryType   String   @map("inquiry_type") // general, viewing, price_negotiation, documents
+  status        String   @default("PENDING") // PENDING, RESPONDED, CLOSED
+  responseMessage String? @map("response_message")
+  respondedAt   DateTime? @map("responded_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+  
+  // Relations
+  property      Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  @@index([propertyId, status])
+  @@index([inquirerEmail])
+  @@index([createdAt])
+  
+  @@map("property_inquiries")
+}
+
+model PropertyViewing {
+  id              String   @id @default(cuid())
+  propertyId      String   @map("property_id")
+  viewerName      String   @map("viewer_name")
+  viewerEmail     String   @map("viewer_email")
+  viewerPhone     String?  @map("viewer_phone")
+  scheduledDate   DateTime @map("scheduled_date")
+  duration        Int      @default(60) // in minutes
+  status          String   @default("SCHEDULED") // SCHEDULED, CONFIRMED, COMPLETED, CANCELLED, NO_SHOW
+  notes           String?
+  agentNotes      String?  @map("agent_notes")
+  completedAt     DateTime? @map("completed_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+  
+  // Relations
+  property        Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  @@index([propertyId, scheduledDate])
+  @@index([viewerEmail])
+  @@index([status])
+  
+  @@map("property_viewings")
+}
+
+model PropertyWatchlist {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  propertyId String   @map("property_id")
+  addedAt    DateTime @default(now()) @map("added_at")
+  notes      String?
+  
+  // Relations
+  user       User     @relation("PropertyWatchlistUser", fields: [userId], references: [id], onDelete: Cascade)
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, propertyId])
+  @@index([userId])
+  @@index([propertyId])
+  
+  @@map("property_watchlist")
 }
