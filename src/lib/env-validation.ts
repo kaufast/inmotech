@@ -96,9 +96,9 @@ const productionRequiredFields = [
 
 // Validate environment variables
 export function validateEnv(): z.infer<typeof envSchema> {
-  // Skip validation if explicitly disabled
-  if (process.env.SKIP_ENV_VALIDATION === 'true') {
-    console.log('⚠️ Environment validation skipped');
+  // Skip validation if explicitly disabled or in Vercel build environment
+  if (process.env.SKIP_ENV_VALIDATION === 'true' || process.env.VERCEL || process.env.CI) {
+    console.log('⚠️ Environment validation skipped (build environment detected)');
     return process.env as any;
   }
   
