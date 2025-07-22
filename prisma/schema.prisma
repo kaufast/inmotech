@@ -65,6 +65,12 @@ model UserSession {
   userId        String   @map("user_id")
   sessionToken  String   @unique @map("session_token")
   deviceInfo    Json     @map("device_info") // OS, browser, version
+  deviceName    String?  @map("device_name")
+  deviceType    String?  @map("device_type") // mobile, desktop, tablet
+  browserName   String?  @map("browser_name")
+  browserVersion String? @map("browser_version")
+  osName        String?  @map("os_name")
+  osVersion     String?  @map("os_version")
   ipAddress     String   @map("ip_address")
   userAgent     String   @map("user_agent")
   location      Json?    @map("location") // City, country, timezone
@@ -72,6 +78,8 @@ model UserSession {
   isActive      Boolean  @default(true) @map("is_active")
   expiresAt     DateTime @map("expires_at")
   createdAt     DateTime @default(now()) @map("created_at")
+  terminatedAt  DateTime? @map("terminated_at")
+  terminatedBy  String?   @map("terminated_by")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
