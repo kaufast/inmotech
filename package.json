@@ -4,7 +4,7 @@
   "description": "InmoTech - Real estate technology and investment platform",
   "scripts": {
     "dev": "next dev",
-    "build": "echo 'Starting build process...' && echo 'Environment check:' && env | grep -E '(NODE_ENV|VERCEL|CI|DATABASE_URL|SKIP_ENV)' && echo 'Running Next.js build...' && SKIP_ENV_VALIDATION=true next build",
+    "build": "prisma generate && SKIP_ENV_VALIDATION=true next build",
     "start": "next start",
     "lint": "next lint",
     "server": "cd server && npm run dev",
