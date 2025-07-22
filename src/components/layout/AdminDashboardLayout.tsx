@@ -13,12 +13,15 @@ import {
   Eye,
   Menu,
   X,
+  UserCheck,
   LogOut,
   Home,
   AlertTriangle
 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSecureAuth } from '@/contexts/SecureAuthContext';
+import { usePermissions } from '@/hooks/usePermissions';
+import RBACGuard from '@/components/auth/RBACGuard';
 
 interface AdminDashboardLayoutProps {
   children: React.ReactNode;
@@ -27,6 +30,7 @@ interface AdminDashboardLayoutProps {
 export default function AdminDashboardLayout({ children }: AdminDashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { user, logout } = useSecureAuth();
+  const { hasPermission } = usePermissions();
   const pathname = usePathname();
   const router = useRouter();
   const locale = pathname?.split('/')[1] || 'en-GB';
@@ -56,42 +60,64 @@ export default function AdminDashboardLayout({ children }: AdminDashboardLayoutP
       icon: BarChart3,
       label: 'Overview',
       href: `/${locale}/admin`,
-      description: 'Platform metrics and insights'
+      description: 'Platform metrics and insights',
+      permission: { resource: 'admin', action: 'read' }
     },
     {
       id: 'users',
       icon: Users,
       label: 'User Management',
       href: `/${locale}/admin/users`,
-      description: 'Manage users, roles, and permissions'
+      description: 'Manage users, roles, and permissions',
+      permission: { resource: 'user', action: 'manage' }
     },
     {
       id: 'sessions',
       icon: Monitor,
       label: 'Session Monitoring',
       href: `/${locale}/admin/sessions`,
-      description: 'Monitor active sessions and security'
+      description: 'Monitor active sessions and security',
+      permission: { resource: 'session', action: 'read' }
     },
     {
       id: 'analytics',
       icon: Activity,
       label: 'Analytics',
       href: `/${locale}/admin/analytics`,
-      description: 'Detailed platform analytics'
+      description: 'Detailed platform analytics',
+      permission: { resource: 'analytics', action: 'read' }
     },
     {
-      id: 'security',
+      id: 'audit-logs',
       icon: Shield,
-      label: 'Security Center',
-      href: `/${locale}/admin/security`,
-      description: 'Security logs and audit trail'
+      label: 'Audit Logs',
+      href: `/${locale}/admin/audit-logs`,
+      description: 'Security and activity logs',
+      permission: { resource: 'audit', action: 'read' }
+    },
+    {
+      id: 'roles',
+      icon: Crown,
+      label: 'Role Management',
+      href: `/${locale}/admin/roles`,
+      description: 'Manage roles and permissions',
+      permission: { resource: 'role', action: 'manage' }
+    },
+    {
+      id: 'user-roles',
+      icon: UserCheck,
+      label: 'User Roles',
+      href: `/${locale}/admin/user-roles`,
+      description: 'Assign roles to users',
+      permission: { resource: 'user', action: 'manage' }
     },
     {
       id: 'system',
       icon: Settings,
       label: 'System Settings',
       href: `/${locale}/admin/system`,
-      description: 'Platform configuration'
+      description: 'Platform configuration',
+      permission: { resource: 'system', action: 'manage' }
     }
   ];
 
@@ -170,6 +196,10 @@ export default function AdminDashboardLayout({ children }: AdminDashboardLayoutP
             {adminNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = isActiveRoute(item.href);
+              
+              if (!user?.isAdmin && !hasPermission(item.permission)) {
+                return null;
+              }
               
               return (
                 <button

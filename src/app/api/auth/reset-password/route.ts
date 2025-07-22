@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { hashPassword } from '@/lib/edge-crypto';
+import { auditLog, AuditEventType, AuditEventAction } from '@/lib/audit-log';
 
 const prisma = new PrismaClient();
 

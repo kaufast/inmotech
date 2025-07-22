@@ -45,8 +45,9 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Generate email verification token
+    // Generate email verification token with expiry
     const emailVerificationToken = crypto.randomUUID();
+    const verificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
     // Create user
     const user = await prisma.user.create({
@@ -56,6 +57,8 @@ export async function POST(request: NextRequest) {
         firstName,
         lastName,
         emailVerificationToken,
+        emailVerificationExpiry: verificationExpiry,
+        lastVerificationEmailSent: new Date(),
         isVerified: false // Explicitly set to false until email is verified
       }
     });

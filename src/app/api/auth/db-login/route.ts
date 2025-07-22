@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server';
 import { neon } from '@neondatabase/serverless';
 import { generateSecureToken, verifyPassword, createSecureJWT } from '@/lib/edge-crypto';
 import { createId } from '@paralleldrive/cuid2';
+import { sendAuditLog, extractClientInfo } from '@/lib/edge-audit';
+import { AuditEventType, AuditEventAction, AuditSeverity } from '@/lib/audit-log';
 
 export const runtime = 'edge';
 
@@ -145,6 +147,23 @@ export async function POST(request: NextRequest) {
     const now = new Date();
     if (user.lockedUntil && user.lockedUntil > now) {
       const lockDuration = Math.ceil((user.lockedUntil.getTime() - now.getTime()) / 60000);
+      
+      // Log blocked login attempt
+      const clientInfo = extractClientInfo(request);
+      await sendAuditLog({
+        eventType: AuditEventType.LOGIN_FAILED,
+        eventAction: AuditEventAction.BLOCKED,
+        severity: AuditSeverity.WARNING,
+        userId: user.id,
+        metadata: {
+          email,
+          reason: 'account_locked',
+          lockedUntil: user.lockedUntil.toISOString(),
+          remainingMinutes: lockDuration
+        },
+        ...clientInfo
+      });
+      
       return new Response(JSON.stringify({
         error: `Account temporarily locked. Try again in ${lockDuration} minutes.`
       }), {
@@ -181,6 +200,22 @@ export async function POST(request: NextRequest) {
       } else if (remainingAttempts <= 2 && remainingAttempts > 0) {
         errorMessage = `Invalid email or password. ${remainingAttempts} attempts remaining before account lock.`;
       }
+
+      // Log failed login attempt
+      const clientInfo = extractClientInfo(request);
+      await sendAuditLog({
+        eventType: AuditEventType.LOGIN_FAILED,
+        eventAction: lockUntil ? AuditEventAction.BLOCKED : AuditEventAction.FAILURE,
+        severity: lockUntil ? AuditSeverity.CRITICAL : AuditSeverity.WARNING,
+        userId: user.id,
+        metadata: {
+          email,
+          attempts: newAttempts,
+          lockedUntil: lockUntil?.toISOString(),
+          reason: 'invalid_password'
+        },
+        ...clientInfo
+      });
 
       return new Response(JSON.stringify({
         error: errorMessage
@@ -265,12 +300,31 @@ export async function POST(request: NextRequest) {
       )
     `;
 
-    // Update last login
+    // Update last login and reset failed attempts
     await sql`
       UPDATE users 
-      SET last_login = ${new Date()}
+      SET 
+        last_login = ${new Date()},
+        login_attempts = 0,
+        locked_until = NULL
       WHERE id = ${user.id}
     `;
+
+    // Log successful login
+    const clientInfo = extractClientInfo(request);
+    await sendAuditLog({
+      eventType: AuditEventType.LOGIN_SUCCESS,
+      eventAction: AuditEventAction.SUCCESS,
+      userId: user.id,
+      metadata: {
+        email: user.email,
+        sessionId,
+        deviceInfo,
+        roles: userRoles.map(r => r.name),
+        isAdmin: user.isAdmin
+      },
+      ...clientInfo
+    });
 
     return new Response(JSON.stringify({
       success: true,

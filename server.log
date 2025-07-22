@@ -439,3 +439,4 @@ Bcrypt verification result: true
 Bcrypt hash detected - using bcrypt-ts verification
 Bcrypt verification result: true
  POST /api/auth/db-login 200 in 959ms
+[?25h

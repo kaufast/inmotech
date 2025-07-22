@@ -1,7 +1,6 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { verifySecureJWT } from '@/lib/edge-crypto';
 import toast from 'react-hot-toast';
 
 export interface UserPermission {
@@ -69,8 +68,15 @@ export function SecureAuthProvider({ children }: { children: React.ReactNode }) 
     if (!token) return false;
     
     try {
-      const payload = await verifySecureJWT(token);
-      return !!payload.userId;
+      const response = await fetch('/api/auth/verify-jwt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      
+      return response.ok;
     } catch (error) {
       console.log('Token verification failed:', error);
       return false;
@@ -93,8 +99,15 @@ export function SecureAuthProvider({ children }: { children: React.ReactNode }) 
         
         // Verify the token is still valid
         try {
-          const isValid = await verifySecureJWT(storedToken);
-          if (isValid) {
+          const response = await fetch('/api/auth/verify-jwt', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${storedToken}`,
+            },
+          });
+          
+          if (response.ok) {
             setUser({
               userId: userData.id || userData.userId,
               email: userData.email,
@@ -232,9 +245,6 @@ export function SecureAuthProvider({ children }: { children: React.ReactNode }) 
         const accessToken = data.tokens.accessToken;
         const newRefreshToken = data.tokens.refreshToken;
         
-        // Verify the token we just received
-        await verifySecureJWT(accessToken);
-        
         setToken(accessToken);
         setRefreshToken(newRefreshToken);
         setUser({
@@ -331,9 +341,18 @@ export function SecureAuthProvider({ children }: { children: React.ReactNode }) 
     if (!token) return;
     
     try {
-      // You could implement a /api/auth/me endpoint to refresh user data
-      // For now, we'll verify the existing token
-      await verifySecureJWT(token);
+      // Use the verify endpoint to refresh user data
+      const response = await fetch('/api/auth/verify-jwt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Token verification failed');
+      }
     } catch (error) {
       console.error('Error refreshing user:', error);
       clearAuth();

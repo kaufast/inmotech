@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { auditLog, AuditEventType, AuditEventAction, AuditSeverity } from '@/lib/audit-log';
 
 const prisma = new PrismaClient();
 
@@ -24,8 +25,52 @@ export async function GET(request: NextRequest) {
     });
 
     if (!user) {
+      // Log failed verification attempt
+      await auditLog.log({
+        eventType: AuditEventType.EMAIL_VERIFICATION_FAILED,
+        eventAction: AuditEventAction.FAILURE,
+        severity: AuditSeverity.WARNING,
+        metadata: { 
+          reason: 'invalid_token',
+          token: token.substring(0, 8) + '...' // Log partial token for debugging
+        },
+        request
+      });
+      
       return NextResponse.json(
         { error: 'Invalid or expired verification token' },
+        { status: 400 }
+      );
+    }
+
+    // Check if token has expired (24 hours default)
+    const now = new Date();
+    if (user.emailVerificationExpiry && user.emailVerificationExpiry < now) {
+      // Clean up expired token
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          emailVerificationToken: null,
+          emailVerificationExpiry: null
+        }
+      });
+
+      // Log expired token attempt
+      await auditLog.log({
+        eventType: AuditEventType.EMAIL_VERIFICATION_FAILED,
+        eventAction: AuditEventAction.FAILURE,
+        severity: AuditSeverity.WARNING,
+        userId: user.id,
+        metadata: { 
+          reason: 'expired_token',
+          email: user.email,
+          expiredAt: user.emailVerificationExpiry.toISOString()
+        },
+        request
+      });
+      
+      return NextResponse.json(
+        { error: 'Verification token has expired. Please request a new one.' },
         { status: 400 }
       );
     }
@@ -35,8 +80,23 @@ export async function GET(request: NextRequest) {
       where: { id: user.id },
       data: {
         isVerified: true,
-        emailVerificationToken: null // Clear the token
+        emailVerificationToken: null,
+        emailVerificationExpiry: null,
+        emailVerificationReminders: 0,
+        lastVerificationEmailSent: null
       }
+    });
+
+    // Log successful email verification
+    await auditLog.log({
+      eventType: AuditEventType.EMAIL_VERIFIED,
+      eventAction: AuditEventAction.SUCCESS,
+      userId: user.id,
+      metadata: { 
+        email: user.email,
+        verificationTime: new Date().toISOString()
+      },
+      request
     });
 
     return NextResponse.json({
@@ -85,15 +145,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate new verification token if needed
-    let verificationToken = user.emailVerificationToken;
-    if (!verificationToken) {
-      verificationToken = crypto.randomUUID();
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { emailVerificationToken: verificationToken }
-      });
+    // Rate limiting: Check if last email was sent recently (5 minutes)
+    const now = new Date();
+    const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+    if (user.lastVerificationEmailSent && user.lastVerificationEmailSent > fiveMinutesAgo) {
+      return NextResponse.json(
+        { error: 'Please wait 5 minutes before requesting another verification email' },
+        { status: 429 }
+      );
     }
+
+    // Limit total reminders to 5 per account
+    if (user.emailVerificationReminders >= 5) {
+      return NextResponse.json(
+        { error: 'Maximum verification attempts reached. Please contact support.' },
+        { status: 429 }
+      );
+    }
+
+    // Generate new verification token (always generate new for security)
+    const verificationToken = crypto.randomUUID();
+    const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { 
+        emailVerificationToken: verificationToken,
+        emailVerificationExpiry: expiresAt,
+        emailVerificationReminders: user.emailVerificationReminders + 1,
+        lastVerificationEmailSent: now
+      }
+    });
 
     // Send verification email (using existing email service)
     try {

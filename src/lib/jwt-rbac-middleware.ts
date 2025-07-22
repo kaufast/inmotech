@@ -17,33 +17,57 @@ interface RBACOptions {
 }
 
 /**
- * Middleware for JWT authentication with RBAC support
+ * Main JWT verification function with RBAC support
  */
-export async function authenticateUser(request: NextRequest): Promise<AuthenticatedUser | null> {
+export async function verifyJWT(request: NextRequest): Promise<{ success: boolean; user?: AuthenticatedUser; error?: string }> {
   try {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return null;
+    // Extract token from Authorization header or cookie
+    let token = request.headers.get('authorization')?.replace('Bearer ', '');
+    
+    if (!token) {
+      token = request.cookies.get('auth_token')?.value;
+    }
+    
+    if (!token) {
+      return { success: false, error: 'No authentication token provided' };
     }
 
-    const token = authHeader.substring(7);
     const payload = await verifySecureJWT(token);
     
-    if (!payload.userId) {
-      return null;
+    if (!payload.userId || !payload.email) {
+      return { success: false, error: 'Invalid token payload' };
     }
 
-    return {
+    const user: AuthenticatedUser = {
       userId: payload.userId,
       email: payload.email,
       roles: payload.roles || [],
       permissions: payload.permissions || [],
       isAdmin: payload.isAdmin || false
     };
+
+    return { success: true, user };
   } catch (error) {
-    console.error('Authentication error:', error);
-    return null;
+    console.error('JWT verification error:', error);
+    
+    if (error instanceof Error) {
+      if (error.message.includes('expired')) {
+        return { success: false, error: 'Token expired' };
+      } else if (error.message.includes('signature')) {
+        return { success: false, error: 'Invalid token signature' };
+      }
+    }
+    
+    return { success: false, error: 'Invalid authentication token' };
   }
+}
+
+/**
+ * Middleware for JWT authentication with RBAC support (legacy compatibility)
+ */
+export async function authenticateUser(request: NextRequest): Promise<AuthenticatedUser | null> {
+  const result = await verifyJWT(request);
+  return result.success ? result.user! : null;
 }
 
 /**
@@ -210,10 +234,103 @@ export function requirePermissions<T extends any[]>(
   };
 }
 
+/**
+ * Route protection configurations for common endpoints
+ */
+export const ROUTE_PROTECTIONS = {
+  // Admin routes
+  ADMIN_ROUTES: {
+    requiredPermissions: ['admin:read'] as string[],
+    requireAllPermissions: true
+  },
+  
+  // User management
+  USER_MANAGEMENT: {
+    requiredPermissions: ['user:manage'] as string[],
+    requireAllPermissions: true
+  },
+  
+  // System settings
+  SYSTEM_MANAGEMENT: {
+    requiredPermissions: ['system:manage'] as string[],
+    requireAllPermissions: true
+  },
+  
+  // Analytics access
+  ANALYTICS_READ: {
+    requiredPermissions: ['analytics:read'] as string[],
+    requireAllPermissions: true
+  },
+  
+  // Audit logs
+  AUDIT_READ: {
+    requiredPermissions: ['audit:read'] as string[],
+    requireAllPermissions: true
+  },
+  
+  // Role management
+  ROLE_MANAGEMENT: {
+    requiredPermissions: ['role:manage'] as string[],
+    requireAllPermissions: true
+  },
+  
+  // Session monitoring
+  SESSION_READ: {
+    requiredPermissions: ['session:read'] as string[],
+    requireAllPermissions: true
+  }
+};
+
+/**
+ * Simplified middleware wrappers for common permissions
+ */
+export function requireAdminAccess<T extends any[]>(
+  handler: (request: NextRequest, user: AuthenticatedUser, ...args: T) => Promise<Response>
+) {
+  return withRBAC(handler, ROUTE_PROTECTIONS.ADMIN_ROUTES);
+}
+
+export function requireUserManagement<T extends any[]>(
+  handler: (request: NextRequest, user: AuthenticatedUser, ...args: T) => Promise<Response>
+) {
+  return withRBAC(handler, ROUTE_PROTECTIONS.USER_MANAGEMENT);
+}
+
+export function requireSystemManagement<T extends any[]>(
+  handler: (request: NextRequest, user: AuthenticatedUser, ...args: T) => Promise<Response>
+) {
+  return withRBAC(handler, ROUTE_PROTECTIONS.SYSTEM_MANAGEMENT);
+}
+
+export function requireAnalyticsRead<T extends any[]>(
+  handler: (request: NextRequest, user: AuthenticatedUser, ...args: T) => Promise<Response>
+) {
+  return withRBAC(handler, ROUTE_PROTECTIONS.ANALYTICS_READ);
+}
+
+export function requireAuditRead<T extends any[]>(
+  handler: (request: NextRequest, user: AuthenticatedUser, ...args: T) => Promise<Response>
+) {
+  return withRBAC(handler, ROUTE_PROTECTIONS.AUDIT_READ);
+}
+
+export function requireRoleManagement<T extends any[]>(
+  handler: (request: NextRequest, user: AuthenticatedUser, ...args: T) => Promise<Response>
+) {
+  return withRBAC(handler, ROUTE_PROTECTIONS.ROLE_MANAGEMENT);
+}
+
+export function requireSessionRead<T extends any[]>(
+  handler: (request: NextRequest, user: AuthenticatedUser, ...args: T) => Promise<Response>
+) {
+  return withRBAC(handler, ROUTE_PROTECTIONS.SESSION_READ);
+}
+
 // Utility functions for common patterns
 export const rbacUtils = {
   hasRequiredRoles,
   hasRequiredPermissions,
   canAccessResource,
-  authenticateUser
+  authenticateUser,
+  verifyJWT
 };

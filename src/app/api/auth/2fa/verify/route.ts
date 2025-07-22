@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { authenticator } from 'otplib';
+import { auditLog, AuditEventType, AuditEventAction } from '@/lib/audit-log';
 
 // Use Node.js runtime for TOTP verification
 

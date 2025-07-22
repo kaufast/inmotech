@@ -87,26 +87,41 @@ class EmailService {
   async sendWelcomeEmail(
     email: string, 
     firstName: string, 
-    verificationToken: string
+    verificationToken: string,
+    isReminder: boolean = false
   ): Promise<void> {
     const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/verify-email?token=${verificationToken}`;
     
+    const subject = isReminder 
+      ? 'Reminder: Please verify your InmoTech email address'
+      : 'Welcome to InmoTech - Verify Your Email';
+    
+    const greeting = isReminder
+      ? `Hi ${firstName}, we noticed you haven't verified your email yet.`
+      : `Welcome to InmoTech, ${firstName}!`;
+    
+    const message = isReminder
+      ? 'To access all features of our real estate investment platform, please verify your email address:'
+      : 'Thank you for joining our real estate investment platform. Please verify your email address to activate your account:';
+    
     const htmlBody = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #2563eb;">Welcome to InmoTech, ${firstName}!</h1>
-        <p>Thank you for joining our real estate investment platform.</p>
-        <p>Please verify your email address to activate your account:</p>
+        <h1 style="color: #2563eb;">${greeting}</h1>
+        <p>${message}</p>
         <a href="${verificationUrl}" 
            style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
           Verify Email Address
         </a>
         <p style="color: #666; font-size: 14px; margin-top: 24px;">
+          This verification link expires in 24 hours.
+        </p>
+        <p style="color: #666; font-size: 14px;">
           If you didn't create this account, please ignore this email.
         </p>
       </div>
     `;
 
-    await this.sendEmail(email, 'Welcome to InmoTech - Verify Your Email', htmlBody);
+    await this.sendEmail(email, subject, htmlBody);
   }
 
   async sendPasswordResetEmail(

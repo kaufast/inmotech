@@ -13,6 +13,7 @@ export default function SimpleLoginForm() {
   const [error, setError] = useState('');
   const [showTwoFactor, setShowTwoFactor] = useState(false);
   const [twoFactorEmail, setTwoFactorEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "en-GB";
@@ -21,9 +22,13 @@ export default function SimpleLoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsSubmitting(true);
+    
+    console.log('Form submitted with:', { email, password: password ? '[HIDDEN]' : 'empty' });
     
     if (!email || !password) {
       setError('Please fill in all fields');
+      setIsSubmitting(false);
       return;
     }
     
@@ -39,7 +44,9 @@ export default function SimpleLoginForm() {
         })
       });
 
+      console.log('Response status:', response.status);
       const data = await response.json();
+      console.log('Response data:', data);
 
       if (!response.ok) {
         throw new Error(data.error || 'Login failed');
@@ -47,17 +54,20 @@ export default function SimpleLoginForm() {
 
       // Check if 2FA is required
       if (data.requiresTwoFactor) {
+        console.log('2FA required, showing 2FA form');
         setTwoFactorEmail(data.email);
         setShowTwoFactor(true);
         return;
       }
 
-      // Normal login success
+      // Normal login success - set user data directly
       if (data.user && data.tokens?.accessToken) {
+        console.log('Login successful, setting user data');
         setUser(data.user);
         setToken(data.tokens.accessToken);
         localStorage.setItem('refreshToken', data.tokens.refreshToken);
         localStorage.setItem('sessionToken', data.tokens.sessionToken);
+        localStorage.setItem('user', JSON.stringify(data.user));
         
         setError('✅ Login successful! Redirecting...');
         setTimeout(() => {
@@ -66,8 +76,23 @@ export default function SimpleLoginForm() {
       } else {
         throw new Error('Invalid login response');
       }
+      
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Login failed');
+      console.error('Login error:', error);
+      
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          setError('Request timed out. Please try again.');
+        } else if (error.message.includes('Load failed') || error.message.includes('fetch')) {
+          setError('Network error. Please check your connection and try again.');
+        } else {
+          setError(error.message);
+        }
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -170,10 +195,10 @@ export default function SimpleLoginForm() {
               <div>
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isSubmitting || isLoading}
                   className="relative w-full flex justify-center items-center py-3 px-4 border border-transparent text-base font-semibold rounded-xl text-white bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 transition-all duration-200 group"
                 >
-                  {isLoading ? 'Signing in...' : (
+                  {(isSubmitting || isLoading) ? 'Signing in...' : (
                     <>
                       Sign in
                       <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
