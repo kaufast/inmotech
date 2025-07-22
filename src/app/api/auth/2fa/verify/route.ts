@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
         AND ur.is_active = true
         AND r.is_active = true
       ORDER BY r.name, p.name
-    `;
+    ` as any[];
 
     // Transform roles data
     const userRoles = rolesResult.reduce((acc: any[], row: any) => {
