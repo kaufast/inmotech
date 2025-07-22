@@ -198,11 +198,11 @@ export const redisConfig = env.REDIS_URL ? {
 } : null;
 
 export const cacheConfig = {
-  enabled: env.ENABLE_CACHE,
-  defaultTTL: env.CACHE_TTL_DEFAULT,
-  propertiesTTL: env.CACHE_TTL_PROPERTIES,
-  analyticsTTL: env.CACHE_TTL_ANALYTICS,
-  usersTTL: env.CACHE_TTL_USERS,
+  enabled: env.ENABLE_CACHE !== 'false',
+  defaultTTL: env.CACHE_TTL_DEFAULT || 3600,
+  propertiesTTL: env.CACHE_TTL_PROPERTIES || 1800,
+  analyticsTTL: env.CACHE_TTL_ANALYTICS || 7200,
+  usersTTL: env.CACHE_TTL_USERS || 900,
 };
 
 export const sentryConfig = env.ENABLE_SENTRY ? {
@@ -212,16 +212,16 @@ export const sentryConfig = env.ENABLE_SENTRY ? {
 } : null;
 
 export const rateLimitConfig = {
-  windowMs: env.RATE_LIMIT_WINDOW_MS,
-  maxRequests: env.RATE_LIMIT_MAX_REQUESTS,
-  keyPrefix: env.RATE_LIMIT_KEY_PREFIX,
+  windowMs: env.RATE_LIMIT_WINDOW_MS || 900000,
+  maxRequests: env.RATE_LIMIT_MAX_REQUESTS || 100,
+  keyPrefix: env.RATE_LIMIT_KEY_PREFIX || 'rl:',
 };
 
 export const securityConfig = {
-  bcryptRounds: env.BCRYPT_ROUNDS,
-  helmetEnabled: env.HELMET_ENABLED,
-  corsEnabled: env.CORS_ENABLED,
-  corsOrigin: env.CORS_ORIGIN === '*' ? '*' : env.CORS_ORIGIN.split(','),
+  bcryptRounds: env.BCRYPT_ROUNDS || 12,
+  helmetEnabled: env.HELMET_ENABLED !== 'false',
+  corsEnabled: env.CORS_ENABLED !== 'false',
+  corsOrigin: !env.CORS_ORIGIN || env.CORS_ORIGIN === '*' ? '*' : env.CORS_ORIGIN.split(','),
 };
 
 // Log environment configuration on startup
