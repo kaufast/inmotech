@@ -22,6 +22,7 @@ export async function POST(request: NextRequest) {
       where: { email: email.toLowerCase() },
       select: {
         id: true,
+        email: true,
         twoFactorSecret: true,
         twoFactorEnabled: true,
         twoFactorBackupCodes: true,
