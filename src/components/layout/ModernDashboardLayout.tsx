@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useSecureAuth } from '@/contexts/SecureAuthContext';
+import { UserRoleBadge, useRoleBasedNavigation } from '@/components/auth/RoleBasedUI';
 
 interface ModernDashboardLayoutProps {
   children: React.ReactNode;
@@ -30,9 +31,10 @@ interface ModernDashboardLayoutProps {
 export const ModernDashboardLayout: React.FC<ModernDashboardLayoutProps> = ({ children }) => {
   const t = useTranslations('navigation');
   const tDash = useTranslations('dashboard');
-  const { user, logout } = useSecureAuth();
+  const { user, logout, hasPermission, hasRole } = useSecureAuth();
   const [activeView, setActiveView] = useState('home');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const roleBasedNav = useRoleBasedNavigation();
 
   const sidebarItems = [
     { id: 'home', icon: Home, label: t('home') },
@@ -42,14 +44,17 @@ export const ModernDashboardLayout: React.FC<ModernDashboardLayoutProps> = ({ ch
   ];
 
   const secondaryItems = [
-    { id: 'investments', icon: TrendingUp, label: t('myInvestments') },
-    { id: 'projects', icon: Target, label: t('browseProjects') },
-    { id: 'watchlist', icon: Heart, label: t('watchlist') },
-    { id: 'portfolio', icon: PieChart, label: t('portfolioAnalysis') },
-    { id: 'analytics', icon: Activity, label: t('analytics') },
-    { id: 'payments', icon: CreditCard, label: t('payments') },
-    { id: 'settings', icon: Settings, label: t('settings') },
-  ];
+    { id: 'investments', icon: TrendingUp, label: t('myInvestments'), show: hasPermission('investments:read') },
+    { id: 'projects', icon: Target, label: t('browseProjects'), show: hasPermission('projects:read') },
+    { id: 'create-project', icon: Target, label: 'Create Project', show: hasPermission('projects:create') },
+    { id: 'watchlist', icon: Heart, label: t('watchlist'), show: hasPermission('portfolio:read') },
+    { id: 'portfolio', icon: PieChart, label: t('portfolioAnalysis'), show: hasPermission('portfolio:read') },
+    { id: 'analytics', icon: Activity, label: t('analytics'), show: hasPermission('analytics:read') },
+    { id: 'advanced-analytics', icon: BarChart3, label: 'Advanced Analytics', show: hasPermission('analytics:advanced') },
+    { id: 'payments', icon: CreditCard, label: t('payments'), show: hasPermission('investments:read') },
+    { id: 'user-management', icon: User, label: 'User Management', show: hasPermission('users:manage') },
+    { id: 'settings', icon: Settings, label: t('settings'), show: true },
+  ].filter(item => item.show);
 
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
@@ -225,7 +230,9 @@ export const ModernDashboardLayout: React.FC<ModernDashboardLayoutProps> = ({ ch
                   <div className="text-sm font-medium text-white">
                     {user ? `${user.firstName} ${user.lastName}` : 'User'}
                   </div>
-                  <div className="text-xs text-gray-400">Premium Investor</div>
+                  <div className="text-xs text-gray-400 flex items-center space-x-2">
+                    <UserRoleBadge />
+                  </div>
                 </div>
               </div>
             </div>

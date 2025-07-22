@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { verifyAuth } from '@/lib/auth-middleware';
+import { requirePermissions } from '@/lib/jwt-rbac-middleware';
 
 const prisma = new PrismaClient();
 
@@ -78,30 +78,12 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/projects - Create new project (admin only)
-export async function POST(request: NextRequest) {
+// POST /api/projects - Create new project (requires projects:create permission)
+const createProject = async (request: NextRequest, user: any) => {
   try {
-    const authResult = await verifyAuth(request);
-    if (!authResult.success) {
-      return NextResponse.json(
-        { error: authResult.error },
-        { status: 401 }
-      );
-    }
-
-    // Check if user is admin
-    const user = await prisma.user.findUnique({
-      where: { id: authResult.userId! }
-    });
-
-    if (!user?.isAdmin) {
-      return NextResponse.json(
-        { error: 'Admin access required' },
-        { status: 403 }
-      );
-    }
-
     const projectData = await request.json();
+
+    console.log(`User ${user.email} (${user.roles.join(', ')}) creating project: ${projectData.title}`);
 
     const project = await prisma.project.create({
       data: {
@@ -118,11 +100,19 @@ export async function POST(request: NextRequest) {
         documents: projectData.documents || [],
         milestones: projectData.milestones || [],
         status: 'ACTIVE',
-        createdBy: authResult.userId!,
+        createdBy: user.userId,
       }
     });
 
-    return NextResponse.json(project, { status: 201 });
+    return NextResponse.json({
+      success: true,
+      message: 'Project created successfully',
+      project,
+      createdBy: {
+        email: user.email,
+        roles: user.roles
+      }
+    }, { status: 201 });
 
   } catch (error) {
     console.error('Project creation error:', error);
@@ -131,4 +121,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+};
+
+export const POST = requirePermissions(['projects:create'])(createProject);

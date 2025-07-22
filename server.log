@@ -1,0 +1,95 @@
+
+> inmotech@1.0.0 dev
+> next dev
+
+  ▲ Next.js 14.2.30
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1261ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1416ms (534 modules)
+ GET / 200 in 1506ms
+ ✓ Compiled in 136ms (271 modules)
+ ✓ Compiled /api/auth/db-login in 146ms (147 modules)
+Bcrypt hash detected - using bcrypt-ts verification
+Bcrypt verification result: true
+Login error:  [NeonDbError: null value in column "id" of relation "refresh_tokens" violates not-null constraint] {
+  name: 'NeonDbError',
+  severity: 'ERROR',
+  code: '23502',
+  detail: 'Failing row contains (null, cmdbvlxlu00001wj11w1ombf9, 1bc3bd2a9d64fdcae3c97dd8f7f17c2b9bd8bef9cbe254b71314eb0ff2e60825, 2025-08-21 08:10:48.395, 2025-07-22 06:10:48.473, f).',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'refresh_tokens',
+  column: 'id',
+  dataType: undefined,
+  constraint: undefined,
+  file: 'execMain.c',
+  line: '1982',
+  routine: 'ExecConstraints',
+  sourceError: undefined
+}
+ POST /api/auth/db-login 500 in 2045ms
+ ✓ Compiled /_not-found in 173ms (521 modules)
+ GET / 404 in 479ms
+ GET /_next/static/chunks/main-app.js?v=1753165319251 404 in 19ms
+ GET /_next/static/css/app/layout.css?v=1753165319251 404 in 25ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 21ms
+ GET /_next/static/chunks/app/not-found.js 404 in 26ms
+ GET /_next/static/chunks/app/layout.js 404 in 27ms
+ GET / 200 in 44ms
+ GET /_next/static/css/app/layout.css?v=1753165334508 404 in 20ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 30ms
+ GET /_next/static/chunks/app/layout.js 404 in 28ms
+ GET /_next/static/chunks/main-app.js?v=1753165334508 404 in 23ms
+ GET /_next/static/chunks/app/not-found.js 404 in 30ms
+ GET / 200 in 105ms
+ GET /_next/static/chunks/webpack.js?v=1753165643774 404 in 136ms
+ GET /_next/static/css/app/layout.css?v=1753165643774 404 in 139ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 184ms
+ GET /_next/static/chunks/app/layout.js 404 in 196ms
+ GET /_next/static/chunks/app/not-found.js 404 in 200ms
+ GET /_next/static/chunks/main-app.js?v=1753165643774 404 in 182ms
+ ✓ Compiled in 2s (271 modules)
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 5.1s (748 modules)
+ GET / 404 in 5938ms
+ GET / 200 in 333ms
+ GET / 200 in 267ms
+ ○ Compiling /[locale] ...
+ ✓ Compiled /[locale] in 10.1s (870 modules)
+ ✓ Compiled in 403ms (517 modules)
+ ✓ Compiled in 211ms (482 modules)
+ ✓ Compiled in 164ms (482 modules)
+ ✓ Compiled / in 353ms (304 modules)
+ GET / 200 in 447ms
+ ✓ Compiled /[locale] in 57ms (392 modules)
+ ○ Compiling /[locale]/landing ...
+ ✓ Compiled /[locale]/landing in 584ms (916 modules)
+ ✓ Compiled /_not-found in 63ms (421 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /_next/static/webpack/510b0c26c09266ff.webpack.hot-update.json 404 in 150ms
+ GET /en-GB/landing 200 in 82ms
+ ✓ Compiled /[locale]/login in 296ms (928 modules)
+ ✓ Compiled /api/auth/db-login in 144ms (153 modules)
+ POST /api/auth/db-login 401 in 559ms
+ POST /api/auth/db-login 401 in 142ms
+Bcrypt hash detected - using bcrypt-ts verification
+Bcrypt verification result: false
+ POST /api/auth/db-login 401 in 971ms
+Bcrypt hash detected - using bcrypt-ts verification
+Bcrypt verification result: true
+ POST /api/auth/db-login 200 in 1188ms
+ ○ Compiling /[locale]/dashboard ...
+ ✓ Compiled /[locale]/dashboard in 1051ms (1067 modules)
+ ✓ Compiled /api/dashboard/analytics in 170ms (602 modules)
+ GET /api/dashboard/analytics 401 in 231ms
+ GET /api/dashboard/analytics 401 in 229ms
+ GET /api/dashboard/analytics 401 in 229ms
+ GET /api/dashboard/analytics 401 in 232ms

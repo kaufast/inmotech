@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { neon } from '@neondatabase/serverless';
 import { generateSecureToken, verifyPassword, createSecureJWT } from '@/lib/edge-crypto';
+import { createId } from '@paralleldrive/cuid2';
 
 export const runtime = 'edge';
 
@@ -37,20 +38,20 @@ export async function POST(request: NextRequest) {
     // Create database connection
     const sql = neon(DATABASE_URL);
 
-    // Get user from database
+    // Get user from database with roles and permissions
     const result = await sql`
       SELECT 
-        id, 
-        email, 
-        password_hash,
-        first_name as "firstName",
-        last_name as "lastName",
-        is_active as "isActive",
-        is_verified as "isVerified",
-        is_admin as "isAdmin",
-        kyc_status as "kycStatus"
-      FROM users 
-      WHERE email = ${email.toLowerCase()}
+        u.id, 
+        u.email, 
+        u.password_hash,
+        u.first_name as "firstName",
+        u.last_name as "lastName",
+        u.is_active as "isActive",
+        u.is_verified as "isVerified",
+        u.is_admin as "isAdmin",
+        u.kyc_status as "kycStatus"
+      FROM users u
+      WHERE u.email = ${email.toLowerCase()}
       LIMIT 1
     `;
     
@@ -64,6 +65,48 @@ export async function POST(request: NextRequest) {
         headers: { 'Content-Type': 'application/json' },
       });
     }
+
+    // Get user roles and permissions
+    const rolesResult = await sql`
+      SELECT 
+        r.name as "roleName",
+        r.description as "roleDescription",
+        p.name as "permissionName",
+        p.resource,
+        p.action,
+        p.description as "permissionDescription"
+      FROM user_roles ur
+      INNER JOIN roles r ON ur.role_id = r.id
+      INNER JOIN role_permissions rp ON r.id = rp.role_id
+      INNER JOIN permissions p ON rp.permission_id = p.id
+      WHERE ur.user_id = ${user.id} 
+        AND ur.is_active = true
+        AND r.is_active = true
+      ORDER BY r.name, p.name
+    `;
+
+    // Process roles and permissions
+    const roleMap = new Map();
+    rolesResult.forEach(row => {
+      if (!roleMap.has(row.roleName)) {
+        roleMap.set(row.roleName, {
+          name: row.roleName,
+          description: row.roleDescription,
+          permissions: []
+        });
+      }
+      
+      const role = roleMap.get(row.roleName);
+      role.permissions.push({
+        name: row.permissionName,
+        resource: row.resource,
+        action: row.action,
+        description: row.permissionDescription
+      });
+    });
+
+    const userRoles = Array.from(roleMap.values());
+    const allPermissions = rolesResult.map(row => row.permissionName);
 
     // Check if account is active
     if (!user.isActive) {
@@ -86,9 +129,27 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Generate secure tokens with HMAC-SHA256 signatures
-    const accessToken = await createSecureJWT({ userId: user.id, email: user.email }, '7d');
+    // Generate secure tokens with HMAC-SHA256 signatures including roles
+    const jwtPayload = {
+      userId: user.id,
+      email: user.email,
+      roles: userRoles.map(r => r.name),
+      permissions: allPermissions
+    };
+    const accessToken = await createSecureJWT(jwtPayload, '15m'); // Short-lived access token
     const refreshToken = generateSecureToken();
+
+    // Store refresh token in database (30 days expiry)
+    const refreshTokenId = createId();
+    await sql`
+      INSERT INTO refresh_tokens (id, user_id, token, expires_at)
+      VALUES (
+        ${refreshTokenId},
+        ${user.id}, 
+        ${refreshToken}, 
+        ${new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)}
+      )
+    `;
 
     // Update last login
     await sql`
@@ -107,12 +168,14 @@ export async function POST(request: NextRequest) {
         lastName: user.lastName,
         isVerified: user.isVerified,
         isAdmin: user.isAdmin,
-        kycStatus: user.kycStatus
+        kycStatus: user.kycStatus,
+        roles: userRoles,
+        permissions: allPermissions
       },
       tokens: {
         accessToken,
         refreshToken,
-        expiresIn: 7 * 24 * 60 * 60
+        expiresIn: 15 * 60 // 15 minutes for access token
       }
     }), {
       status: 200,

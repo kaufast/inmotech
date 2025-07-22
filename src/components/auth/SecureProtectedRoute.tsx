@@ -8,14 +8,36 @@ interface SecureProtectedRouteProps {
   children: React.ReactNode;
   requireAdmin?: boolean;
   requireVerified?: boolean;
+  // RBAC options
+  requiredRoles?: string[];
+  requiredPermissions?: string[];
+  requireAllRoles?: boolean;
+  requireAllPermissions?: boolean;
+  fallbackPath?: string;
 }
 
 export default function SecureProtectedRoute({ 
   children, 
   requireAdmin = false,
-  requireVerified = false 
+  requireVerified = false,
+  requiredRoles = [],
+  requiredPermissions = [],
+  requireAllRoles = false,
+  requireAllPermissions = false,
+  fallbackPath
 }: SecureProtectedRouteProps) {
-  const { user, isLoading, isAuthenticated, verifyToken } = useSecureAuth();
+  const { 
+    user, 
+    isLoading, 
+    isAuthenticated, 
+    verifyToken,
+    hasRole,
+    hasPermission,
+    hasAnyRole,
+    hasAllRoles,
+    hasAnyPermission,
+    hasAllPermissions
+  } = useSecureAuth();
   const router = useRouter();
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "en-GB";
@@ -41,9 +63,9 @@ export default function SecureProtectedRoute({
           return;
         }
         
-        // Check admin requirement
+        // Check admin requirement (legacy)
         if (requireAdmin && !user.isAdmin) {
-          router.push(`/${locale}/dashboard`);
+          router.push(fallbackPath || `/${locale}/dashboard`);
           return;
         }
         
@@ -51,6 +73,40 @@ export default function SecureProtectedRoute({
         if (requireVerified && !user.isVerified) {
           router.push(`/${locale}/verify-email`);
           return;
+        }
+
+        // Check role requirements
+        if (requiredRoles.length > 0) {
+          const hasRequiredRoles = requireAllRoles 
+            ? hasAllRoles(requiredRoles)
+            : hasAnyRole(requiredRoles);
+            
+          if (!hasRequiredRoles) {
+            console.log('Access denied: Missing required roles', {
+              required: requiredRoles,
+              userRoles: user.roles?.map(r => r.name),
+              requireAll: requireAllRoles
+            });
+            router.push(fallbackPath || `/${locale}/dashboard`);
+            return;
+          }
+        }
+
+        // Check permission requirements
+        if (requiredPermissions.length > 0) {
+          const hasRequiredPermissions = requireAllPermissions
+            ? hasAllPermissions(requiredPermissions)
+            : hasAnyPermission(requiredPermissions);
+            
+          if (!hasRequiredPermissions) {
+            console.log('Access denied: Missing required permissions', {
+              required: requiredPermissions,
+              userPermissions: user.permissions,
+              requireAll: requireAllPermissions
+            });
+            router.push(fallbackPath || `/${locale}/dashboard`);
+            return;
+          }
         }
       }
       
