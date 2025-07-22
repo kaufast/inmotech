@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useSecureAuth } from '@/contexts/SecureAuthContext';
-import ModernDashboardLayout from '@/components/layout/ModernDashboardLayout';
+import { ModernDashboardLayout } from '@/components/layout/ModernDashboardLayout';
 import { User, Lock, Shield, Mail, Eye, EyeOff, CheckCircle, Monitor } from 'lucide-react';
 import toast from 'react-hot-toast';
 import TwoFactorSetup from '@/components/auth/TwoFactorSetup';

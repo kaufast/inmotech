@@ -143,7 +143,7 @@ export const PATCH = requireAdmin(async (request: NextRequest) => {
       user: updatedUser
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Admin user update error:', error);
     if (error.code === 'P2025') {
       return NextResponse.json(
