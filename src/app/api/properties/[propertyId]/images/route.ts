@@ -29,7 +29,7 @@ export const POST = withAuth(async (
 
     const isOwner = property.ownerId === user.userId;
     const isAgent = property.agentId === user.userId;
-    const isAdmin = user.role === 'SUPERADMIN' || user.role === 'ADMIN';
+    const isAdmin = user.isAdmin || user.roles.includes('SUPERADMIN') || user.roles.includes('ADMIN');
 
     if (!isOwner && !isAgent && !isAdmin) {
       return NextResponse.json({ error: 'Unauthorized to upload images' }, { status: 403 });
@@ -39,7 +39,8 @@ export const POST = withAuth(async (
     const files: File[] = [];
     
     // Collect all files from the form data
-    for (const [key, value] of data.entries()) {
+    const entries = Array.from(data.entries());
+    for (const [key, value] of entries) {
       if (key.startsWith('file') && value instanceof File) {
         files.push(value);
       }
@@ -143,7 +144,7 @@ export const DELETE = withAuth(async (
 
     const isOwner = property.ownerId === user.userId;
     const isAgent = property.agentId === user.userId;
-    const isAdmin = user.role === 'SUPERADMIN' || user.role === 'ADMIN';
+    const isAdmin = user.isAdmin || user.roles.includes('SUPERADMIN') || user.roles.includes('ADMIN');
 
     if (!isOwner && !isAgent && !isAdmin) {
       return NextResponse.json({ error: 'Unauthorized to delete images' }, { status: 403 });
@@ -202,7 +203,7 @@ export const PUT = withAuth(async (
 
     const isOwner = property.ownerId === user.userId;
     const isAgent = property.agentId === user.userId;
-    const isAdmin = user.role === 'SUPERADMIN' || user.role === 'ADMIN';
+    const isAdmin = user.isAdmin || user.roles.includes('SUPERADMIN') || user.roles.includes('ADMIN');
 
     if (!isOwner && !isAgent && !isAdmin) {
       return NextResponse.json({ error: 'Unauthorized to reorder images' }, { status: 403 });

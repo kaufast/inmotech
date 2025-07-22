@@ -28,6 +28,10 @@ export async function GET(request: NextRequest) {
     const lat = searchParams.get('lat');
     const lng = searchParams.get('lng');
     
+    // Map bounds filtering
+    const northEast = searchParams.get('northEast'); // "lat,lng" format
+    const southWest = searchParams.get('southWest'); // "lat,lng" format
+    
     // Pagination
     const page = parseInt(searchParams.get('page') || '1');
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100);
@@ -132,9 +136,22 @@ export async function GET(request: NextRequest) {
         ];
     }
     
-    // Location-based search (if coordinates provided)
-    let locationFilter = {};
-    if (lat && lng && radius) {
+    // Map bounds filtering (priority over radius search)
+    if (northEast && southWest) {
+      const [neLat, neLng] = northEast.split(',').map(parseFloat);
+      const [swLat, swLng] = southWest.split(',').map(parseFloat);
+      
+      where.latitude = {
+        gte: swLat,
+        lte: neLat
+      };
+      where.longitude = {
+        gte: swLng,
+        lte: neLng
+      };
+    } 
+    // Fallback to radius-based search if map bounds not provided
+    else if (lat && lng && radius) {
       // This is a simplified approach - for production, you'd want to use PostGIS
       const latFloat = parseFloat(lat);
       const lngFloat = parseFloat(lng);

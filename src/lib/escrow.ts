@@ -60,11 +60,11 @@ class EscrowService {
       // Get investment details
       const investment = await prisma.investment.findUnique({
         where: { id: data.investmentId },
-        include: { project: true }
+        include: { opportunity: true }
       });
 
-      if (!investment || !investment.project) {
-        throw new Error('Investment or project not found');
+      if (!investment || !investment.opportunity) {
+        throw new Error('Investment or opportunity not found');
       }
 
       // Convert amount to Wei (assuming 18 decimals)
@@ -75,8 +75,8 @@ class EscrowService {
       
       // Create escrow deposit on blockchain
       const tx = await this.escrowContract.createDeposit(
-        investment.project.id,
-        investment.project.createdBy, // project manager address
+        investment.opportunity.id,
+        investment.opportunity.createdBy, // opportunity manager address
         releaseTime,
         `Investment ${data.investmentId}`,
         ethers.ZeroAddress, // ETH deposit
@@ -144,7 +144,7 @@ class EscrowService {
       await prisma.escrowTransaction.updateMany({
         where: {
           investment: {
-            projectId: projectId
+            opportunityId: projectId
           },
           status: 'CREATED'
         },

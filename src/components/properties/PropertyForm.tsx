@@ -45,6 +45,7 @@ interface PropertyFormData {
   latitude: number | '';
   longitude: number | '';
   isFeatured: boolean;
+  images?: string[];
 }
 
 interface PropertyFormProps {

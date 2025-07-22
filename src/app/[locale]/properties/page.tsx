@@ -210,12 +210,25 @@ export default function PropertiesPage({ params }: { params: { locale: string } 
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Find Your Perfect Property
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Discover amazing properties in your preferred location
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                Find Your Perfect Property
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                Discover amazing properties in your preferred location
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <a
+                href="/properties-map"
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+              >
+                <MapPin className="w-4 h-4" />
+                Map View
+              </a>
+            </div>
+          </div>
         </div>
 
         {/* Search Bar */}

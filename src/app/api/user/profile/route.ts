@@ -41,11 +41,11 @@ async function getProfileHandler(request: NextRequest) {
             amount: true,
             status: true,
             createdAt: true,
-            project: {
+            opportunity: {
               select: {
                 id: true,
                 title: true,
-                expectedReturn: true
+                expectedRoi: true
               }
             }
           },

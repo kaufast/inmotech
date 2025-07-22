@@ -2,18 +2,13 @@ const createNextIntlPlugin = require('next-intl/plugin');
  
 const withNextIntl = createNextIntlPlugin('./src/lib/i18n.ts');
 
-// Validate required environment variables
-const requiredEnvVars = [
-  'DATABASE_URL',
-  'JWT_SECRET',
-];
-
-// Only validate in production builds
-if (process.env.NODE_ENV === 'production' && !process.env.SKIP_ENV_VALIDATION) {
-  for (const envVar of requiredEnvVars) {
-    if (!process.env[envVar]) {
-      throw new Error(`Missing required environment variable: ${envVar}`);
-    }
+// Import environment validation
+if (!process.env.SKIP_ENV_VALIDATION) {
+  try {
+    require('./src/lib/env-validation');
+  } catch (error) {
+    console.error('❌ Environment validation failed:', error.message);
+    process.exit(1);
   }
 }
 
@@ -55,16 +50,55 @@ const nextConfig = {
     DATABASE_URL: process.env.DATABASE_URL,
     JWT_SECRET: process.env.JWT_SECRET,
   },
-  // Headers for security
+  // Enhanced security headers
   async headers() {
+    const isProduction = process.env.NODE_ENV === 'production';
+    
     return [
+      {
+        source: '/(.*)',
+        headers: [
+          // DNS prefetch control
+          { key: 'X-DNS-Prefetch-Control', value: 'on' },
+          // Clickjacking protection
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          // MIME type sniffing protection
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          // Referrer policy
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          // XSS protection
+          { key: 'X-XSS-Protection', value: '1; mode=block' },
+          // Remove server fingerprinting
+          { key: 'X-Powered-By', value: 'InmoTech' },
+          // Permissions policy
+          { 
+            key: 'Permissions-Policy', 
+            value: 'camera=(), microphone=(), geolocation=(self), payment=(self)' 
+          },
+          // HSTS (only in production)
+          ...(isProduction ? [
+            { 
+              key: 'Strict-Transport-Security', 
+              value: 'max-age=31536000; includeSubDomains; preload' 
+            }
+          ] : []),
+        ],
+      },
       {
         source: '/api/:path*',
         headers: [
-          { key: 'X-DNS-Prefetch-Control', value: 'on' },
-          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
+          // API-specific headers
+          { key: 'Cache-Control', value: 'no-store, must-revalidate' },
+          { key: 'X-API-Version', value: '1.0.0' },
+          // Rate limiting headers
+          { key: 'X-RateLimit-Limit', value: '100' },
+          { key: 'X-RateLimit-Window', value: '900' },
+        ],
+      },
+      {
+        source: '/health',
+        headers: [
+          { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
         ],
       },
     ];

@@ -29,35 +29,24 @@ export async function GET(request: NextRequest) {
         take: limit,
         orderBy: { createdAt: 'desc' },
         include: {
-          _count: {
-            select: { investments: true }
+          creator: {
+            select: {
+              firstName: true,
+              lastName: true
+            }
           }
         }
       }),
       prisma.project.count({ where })
     ]);
 
-    // Calculate raised amounts
-    const projectsWithStats = await Promise.all(
-      projects.map(async (project) => {
-        const raisedAmount = await prisma.investment.aggregate({
-          where: { 
-            projectId: project.id,
-            status: { in: ['CONFIRMED', 'COMPLETED'] }
-          },
-          _sum: { amount: true }
-        });
-
-        return {
-          ...project,
-          raisedAmount: raisedAmount._sum.amount || 0,
-          investorCount: project._count.investments,
-          fundingProgress: Math.round(
-            ((raisedAmount._sum.amount || 0) / project.targetAmount) * 100
-          )
-        };
-      })
-    );
+    // TODO: Update to work with new investment schema
+    const projectsWithStats = projects.map(project => ({
+      ...project,
+      raisedAmount: 0,
+      investorCount: 0,
+      fundingProgress: 0
+    }));
 
     return NextResponse.json({
       projects: projectsWithStats,

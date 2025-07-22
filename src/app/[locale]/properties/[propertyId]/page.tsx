@@ -36,6 +36,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSecureAuth } from '@/contexts/SecureAuthContext';
+import PropertyValuationComponent from '@/components/properties/PropertyValuation';
 
 interface Property {
   id: string;
@@ -518,6 +519,26 @@ export default function PropertyPage({ params }: PropertyPageProps) {
                 </p>
               </div>
             )}
+
+            {/* Property Valuation */}
+            <PropertyValuationComponent
+              property={{
+                id: property.id,
+                address: property.address,
+                city: property.city,
+                latitude: property.latitude,
+                longitude: property.longitude,
+                propertyType: property.propertyType,
+                bedrooms: property.bedrooms,
+                bathrooms: property.bathrooms,
+                totalArea: property.totalArea || 0,
+                yearBuilt: property.yearBuilt,
+                listingPrice: property.salePrice,
+                rentPrice: property.rentPrice
+              }}
+              showDetailed={true}
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-lg"
+            />
 
             {/* Property Details */}
             <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">

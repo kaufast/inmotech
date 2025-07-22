@@ -38,7 +38,6 @@ model User {
   // Relations
   refreshTokens RefreshToken[]
   userSessions UserSession[]
-  investments Investment[]
   kycSubmissions KycSubmission[]
   createdProjects Project[]
   preferences UserPreference?
@@ -48,13 +47,23 @@ model User {
   userRoles UserRole[]
   userAuditLogs AuditLog[] @relation("UserAuditLogs")
   adminAuditLogs AuditLog[] @relation("AdminAuditLogs")
+  investments Investment[]
   
   // Property Relations
   ownedProperties Property[] @relation("PropertyOwner")
   managedProperties Property[] @relation("PropertyAgent")
   propertyWatchlist PropertyWatchlist[] @relation("PropertyWatchlistUser")
+  
+  // Investment Management Relations
+  createdInvestmentOpportunities InvestmentOpportunity[] @relation("CreatedInvestmentOpportunities")
+  managedInvestmentOpportunities InvestmentOpportunity[] @relation("ManagedInvestmentOpportunities")
+  investmentUpdatesAuthored InvestmentOpportunityUpdate[] @relation("InvestmentUpdateAuthor")
 
   @@map("users")
+  @@index([email])
+  @@index([isActive, isVerified])
+  @@index([createdAt])
+  @@index([lastLogin])
 }
 
 model RefreshToken {
@@ -68,6 +77,10 @@ model RefreshToken {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("refresh_tokens")
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@index([isRevoked, expiresAt])
 }
 
 model UserSession {
@@ -94,6 +107,11 @@ model UserSession {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_sessions")
+  @@index([userId])
+  @@index([sessionToken])
+  @@index([isActive, lastActivity])
+  @@index([expiresAt])
+  @@index([ipAddress])
 }
 
 model Project {
@@ -118,35 +136,12 @@ model Project {
 
   // Relations
   creator User @relation(fields: [createdBy], references: [id])
-  investments Investment[]
   watchlistedBy UserWatchlist[]
   alerts UserAlert[]
 
   @@map("projects")
 }
 
-model Investment {
-  id                    String    @id @default(cuid())
-  userId                String    @map("user_id")
-  projectId             String    @map("project_id")
-  amount                Float
-  currency              String    @default("EUR")
-  status                String    @default("PENDING")
-  paymentMethod         String    @map("payment_method")
-  paymentTransactionId  String?   @map("payment_transaction_id")
-  escrowTransactionId   String?   @map("escrow_transaction_id")
-  failureReason         String?   @map("failure_reason")
-  confirmedAt           DateTime? @map("confirmed_at")
-  createdAt             DateTime  @default(now()) @map("created_at")
-  updatedAt             DateTime  @updatedAt @map("updated_at")
-
-  // Relations
-  user User @relation(fields: [userId], references: [id])
-  project Project @relation(fields: [projectId], references: [id])
-  escrowTransaction EscrowTransaction?
-
-  @@map("investments")
-}
 
 model KycSubmission {
   id                String    @id @default(cuid())
@@ -506,4 +501,264 @@ model PropertyWatchlist {
   @@index([propertyId])
   
   @@map("property_watchlist")
+}
+
+// Investment Management System
+model InvestmentOpportunity {
+  id                    String   @id @default(cuid())
+  title                 String
+  description           String?
+  shortDescription      String?  @map("short_description")
+  
+  // Investment Type and Category
+  investmentType        String   @map("investment_type") // property_development, rental_property, property_flip, commercial_real_estate, land_development
+  category              String   // residential, commercial, industrial, mixed_use, land
+  riskLevel             String   @map("risk_level") // low, medium, high, very_high
+  
+  // Financial Information
+  targetAmount          Float    @map("target_amount") // Total funding needed
+  raisedAmount          Float    @default(0) @map("raised_amount") // Amount already raised
+  minimumInvestment     Float    @map("minimum_investment")
+  maximumInvestment     Float?   @map("maximum_investment")
+  currency              String   @default("EUR")
+  
+  // Returns and Performance
+  expectedRoi           Float    @map("expected_roi") // Expected return on investment (%)
+  expectedAnnualReturn  Float?   @map("expected_annual_return") // Annual return (%)
+  projectedRentalYield  Float?   @map("projected_rental_yield") // For rental properties (%)
+  investmentPeriod      Int      @map("investment_period") // Duration in months
+  
+  // Location Information
+  address               String?
+  city                  String
+  country               String   @default("Spain")
+  latitude              Float?
+  longitude             Float?
+  
+  // Property Details (if applicable)
+  propertyType          String?  @map("property_type") // apartment, house, commercial, etc.
+  totalArea             Float?   @map("total_area")
+  numberOfUnits         Int?     @map("number_of_units")
+  bedrooms              Int?
+  bathrooms             Int?
+  
+  // Investment Timeline
+  fundingStartDate      DateTime @map("funding_start_date")
+  fundingEndDate        DateTime @map("funding_end_date")
+  expectedStartDate     DateTime? @map("expected_start_date")
+  expectedCompletionDate DateTime? @map("expected_completion_date")
+  
+  // Status and Visibility
+  status                String   @default("DRAFT") // DRAFT, ACTIVE, FUNDING_COMPLETE, IN_PROGRESS, COMPLETED, CANCELLED
+  isActive              Boolean  @default(true) @map("is_active")
+  isFeatured            Boolean  @default(false) @map("is_featured")
+  
+  // Media and Documentation
+  images                String[] @default([])
+  documents             String[] @default([])
+  businessPlan          String?  @map("business_plan") // URL to business plan document
+  financialProjections  Json?    @map("financial_projections") // Detailed financial forecasts
+  
+  // Creator and Management
+  createdBy             String   @map("created_by")
+  fundManagerId         String?  @map("fund_manager_id")
+  
+  // Performance Tracking
+  views                 Int      @default(0)
+  totalInvestors        Int      @default(0) @map("total_investors")
+  lastUpdated           DateTime @updatedAt @map("last_updated")
+  
+  // Timestamps
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  creator               User     @relation("CreatedInvestmentOpportunities", fields: [createdBy], references: [id])
+  fundManager           User?    @relation("ManagedInvestmentOpportunities", fields: [fundManagerId], references: [id])
+  investments           Investment[]
+  opportunityUpdates    InvestmentOpportunityUpdate[]
+  
+  // Indexes
+  @@index([status, isActive])
+  @@index([investmentType, category])
+  @@index([city, country])
+  @@index([fundingEndDate, status])
+  @@index([createdBy])
+  @@index([riskLevel])
+  @@index([expectedRoi])
+  
+  @@map("investment_opportunities")
+}
+
+model Investment {
+  id                    String   @id @default(cuid())
+  userId                String   @map("user_id")
+  opportunityId         String   @map("opportunity_id")
+  
+  // Investment Details
+  amount                Float
+  currency              String   @default("EUR")
+  investmentDate        DateTime @map("investment_date")
+  
+  // Status and Processing
+  status                String   @default("PENDING") // PENDING, CONFIRMED, PROCESSING, ACTIVE, COMPLETED, CANCELLED, FAILED
+  paymentStatus         String   @default("PENDING") @map("payment_status") // PENDING, PROCESSING, COMPLETED, FAILED, REFUNDED
+  paymentMethod         String?  @map("payment_method") // card, bank_transfer, crypto, etc.
+  transactionId         String?  @map("transaction_id")
+  
+  // Returns and Performance
+  currentValue          Float?   @map("current_value") // Current estimated value
+  totalReturns          Float    @default(0) @map("total_returns") // Total returns received
+  unrealizedReturns     Float    @default(0) @map("unrealized_returns") // Paper gains/losses
+  lastValuationDate     DateTime? @map("last_valuation_date")
+  
+  // Distribution and Payouts
+  totalDistributions    Float    @default(0) @map("total_distributions") // Total distributions received
+  nextDistributionDate  DateTime? @map("next_distribution_date")
+  distributionFrequency String?  @map("distribution_frequency") // monthly, quarterly, annually
+  
+  // Exit Information
+  exitDate              DateTime? @map("exit_date")
+  exitValue             Float?   @map("exit_value")
+  exitMethod            String?  @map("exit_method") // sale, buyback, ipo, etc.
+  
+  // Metadata
+  investmentTerms       Json?    @map("investment_terms") // Contract terms, special conditions
+  notes                 String?
+  
+  // Timestamps
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  investor              User     @relation(fields: [userId], references: [id])
+  opportunity           InvestmentOpportunity @relation(fields: [opportunityId], references: [id])
+  distributions         InvestmentDistribution[]
+  valuationHistory      InvestmentValuation[]
+  escrowTransaction     EscrowTransaction?
+  
+  // Indexes
+  @@index([userId, status])
+  @@index([opportunityId, status])
+  @@index([investmentDate])
+  @@index([status, paymentStatus])
+  @@index([exitDate])
+  
+  @@map("investments")
+}
+
+model InvestmentDistribution {
+  id            String   @id @default(cuid())
+  investmentId  String   @map("investment_id")
+  
+  // Distribution Details
+  amount        Float
+  currency      String   @default("EUR")
+  distributionType String @map("distribution_type") // dividend, interest, capital_return, bonus
+  distributionDate DateTime @map("distribution_date")
+  
+  // Tax Information
+  taxableAmount Float?   @map("taxable_amount")
+  taxWithheld   Float?   @map("tax_withheld")
+  
+  // Status and Processing
+  status        String   @default("PENDING") // PENDING, PROCESSING, PAID, FAILED
+  paymentMethod String?  @map("payment_method")
+  transactionId String?  @map("transaction_id")
+  
+  // Metadata
+  description   String?
+  taxYear       Int?     @map("tax_year")
+  
+  // Timestamps
+  createdAt     DateTime @default(now()) @map("created_at")
+  processedAt   DateTime? @map("processed_at")
+  
+  // Relations
+  investment    Investment @relation(fields: [investmentId], references: [id])
+  
+  // Indexes
+  @@index([investmentId, distributionDate])
+  @@index([status])
+  @@index([distributionDate])
+  @@index([taxYear])
+  
+  @@map("investment_distributions")
+}
+
+model InvestmentValuation {
+  id            String   @id @default(cuid())
+  investmentId  String   @map("investment_id")
+  
+  // Valuation Details
+  valuationDate DateTime @map("valuation_date")
+  totalValue    Float    @map("total_value")
+  pricePerShare Float?   @map("price_per_share")
+  currency      String   @default("EUR")
+  
+  // Valuation Method and Source
+  valuationMethod String @map("valuation_method") // market, nav, dcf, comparable, appraisal
+  valuationSource String @map("valuation_source") // internal, third_party, market
+  valuerId        String? @map("valuer_id") // ID of the person/entity who performed valuation
+  
+  // Performance Metrics
+  unrealizedGain  Float?  @map("unrealized_gain")
+  totalReturn     Float?  @map("total_return") // Including distributions
+  annualizedReturn Float? @map("annualized_return")
+  
+  // Supporting Documents
+  valuationReport String? @map("valuation_report") // URL to valuation document
+  notes           String?
+  
+  // Timestamps
+  createdAt       DateTime @default(now()) @map("created_at")
+  
+  // Relations
+  investment      Investment @relation(fields: [investmentId], references: [id])
+  
+  // Indexes
+  @@index([investmentId, valuationDate])
+  @@index([valuationDate])
+  @@index([valuationMethod])
+  
+  @@map("investment_valuations")
+}
+
+model InvestmentOpportunityUpdate {
+  id            String   @id @default(cuid())
+  opportunityId String   @map("opportunity_id")
+  
+  // Update Details
+  title         String
+  content       String
+  updateType    String   @map("update_type") // progress, financial, milestone, news, risk
+  priority      String   @default("medium") // low, medium, high, urgent
+  
+  // Visibility and Targeting
+  isPublic      Boolean  @default(true) @map("is_public")
+  targetInvestors String[] @default([]) @map("target_investors") // Specific investor IDs if not public
+  
+  // Media
+  images        String[] @default([])
+  documents     String[] @default([])
+  
+  // Author and Publishing
+  authorId      String   @map("author_id")
+  publishedAt   DateTime @default(now()) @map("published_at")
+  
+  // Timestamps
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  opportunity   InvestmentOpportunity @relation(fields: [opportunityId], references: [id])
+  author        User     @relation("InvestmentUpdateAuthor", fields: [authorId], references: [id])
+  
+  // Indexes
+  @@index([opportunityId, publishedAt])
+  @@index([updateType])
+  @@index([publishedAt])
+  @@index([authorId])
+  
+  @@map("investment_opportunity_updates")
 }
