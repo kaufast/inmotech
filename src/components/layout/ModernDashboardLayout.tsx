@@ -21,7 +21,7 @@ import {
   Heart
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSecureAuth } from '@/contexts/SecureAuthContext';
 
 interface ModernDashboardLayoutProps {
   children: React.ReactNode;
@@ -30,7 +30,7 @@ interface ModernDashboardLayoutProps {
 export const ModernDashboardLayout: React.FC<ModernDashboardLayoutProps> = ({ children }) => {
   const t = useTranslations('navigation');
   const tDash = useTranslations('dashboard');
-  const { user, logout } = useAuth();
+  const { user, logout } = useSecureAuth();
   const [activeView, setActiveView] = useState('home');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 

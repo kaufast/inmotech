@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { AuthProvider } from '@/contexts/AuthContext';
+import { SecureAuthProvider } from '@/contexts/SecureAuthContext';
 import { Toaster } from 'react-hot-toast';
 import './globals.css';
 
@@ -15,7 +15,7 @@ export default function RootLayout({ children }: Props) {
         <title>InmoTech - Real Estate Investment Platform</title>
       </head>
       <body>
-        <AuthProvider>
+        <SecureAuthProvider>
           {children}
           <Toaster 
             position="top-right"
@@ -27,7 +27,7 @@ export default function RootLayout({ children }: Props) {
               },
             }}
           />
-        </AuthProvider>
+        </SecureAuthProvider>
       </body>
     </html>
   );

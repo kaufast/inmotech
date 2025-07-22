@@ -11,15 +11,15 @@ import { ModernQuickActions } from '@/components/dashboard/ModernQuickActions';
 import { ModernRecentActivity } from '@/components/dashboard/ModernRecentActivity';
 import { InvestmentCalculator } from '@/components/dashboard/InvestmentCalculator';
 import { PersonalizedRecommendations } from '@/components/dashboard/PersonalizedRecommendations';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { useAuth } from '@/contexts/AuthContext';
+import SecureProtectedRoute from '@/components/auth/SecureProtectedRoute';
+import { useSecureAuth } from '@/contexts/SecureAuthContext';
 
 export default function DashboardPage() {
   const t = useTranslations();
-  const { user } = useAuth();
+  const { user } = useSecureAuth();
   
   return (
-    <ProtectedRoute>
+    <SecureProtectedRoute>
       <ModernDashboardLayout>
         <div className="space-y-6">
           {/* Header Section */}
@@ -61,6 +61,6 @@ export default function DashboardPage() {
           </div>
         </div>
       </ModernDashboardLayout>
-    </ProtectedRoute>
+    </SecureProtectedRoute>
   );
 }

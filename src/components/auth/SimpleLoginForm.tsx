@@ -4,15 +4,16 @@ import React, { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { TrendingUp, ArrowRight } from 'lucide-react';
+import { useSecureAuth } from '@/contexts/SecureAuthContext';
 
 export default function SimpleLoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "en-GB";
+  const { login, isLoading } = useSecureAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,43 +23,16 @@ export default function SimpleLoginForm() {
       setError('Please fill in all fields');
       return;
     }
-
-    setIsLoading(true);
     
     try {
-      // Try server-side authentication first
-      const response = await fetch('/api/auth/db-login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        
-        // Store auth data
-        if (data.tokens) {
-          localStorage.setItem('token', data.tokens.accessToken);
-          localStorage.setItem('user', JSON.stringify(data.user));
-        }
-        
-        setError('✅ Login successful! Redirecting...');
-        // Give a brief moment to show success message, then redirect
-        setTimeout(() => {
-          window.location.href = `/${locale}/dashboard`;
-        }, 500);
-        return;
-      } else {
-        const errorData = await response.json();
-        setError(errorData.error || 'Login failed');
-        setIsLoading(false);
-      }
+      await login(email, password);
+      setError('✅ Login successful! Redirecting...');
+      // Give a brief moment to show success message, then redirect
+      setTimeout(() => {
+        router.push(`/${locale}/dashboard`);
+      }, 500);
     } catch (error) {
-      console.error('Server-side auth error:', error);
-      setError('Network error. Please try again.');
-      setIsLoading(false);
+      setError(error instanceof Error ? error.message : 'Login failed');
     }
   };
 
