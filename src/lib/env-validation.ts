@@ -198,7 +198,7 @@ export const redisConfig = env.REDIS_URL ? {
 } : null;
 
 export const cacheConfig = {
-  enabled: env.ENABLE_CACHE !== 'false',
+  enabled: env.ENABLE_CACHE ?? true,
   defaultTTL: env.CACHE_TTL_DEFAULT || 3600,
   propertiesTTL: env.CACHE_TTL_PROPERTIES || 1800,
   analyticsTTL: env.CACHE_TTL_ANALYTICS || 7200,
@@ -219,8 +219,8 @@ export const rateLimitConfig = {
 
 export const securityConfig = {
   bcryptRounds: env.BCRYPT_ROUNDS || 12,
-  helmetEnabled: env.HELMET_ENABLED !== 'false',
-  corsEnabled: env.CORS_ENABLED !== 'false',
+  helmetEnabled: env.HELMET_ENABLED ?? true,
+  corsEnabled: env.CORS_ENABLED ?? true,
   corsOrigin: !env.CORS_ORIGIN || env.CORS_ORIGIN === '*' ? '*' : env.CORS_ORIGIN.split(','),
 };
 
