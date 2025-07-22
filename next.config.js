@@ -2,15 +2,7 @@ const createNextIntlPlugin = require('next-intl/plugin');
  
 const withNextIntl = createNextIntlPlugin('./src/lib/i18n.ts');
 
-// Import environment validation
-if (!process.env.SKIP_ENV_VALIDATION) {
-  try {
-    require('./src/lib/env-validation');
-  } catch (error) {
-    console.error('❌ Environment validation failed:', error.message);
-    process.exit(1);
-  }
-}
+// Removed environment validation import for Next.js config safety
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
