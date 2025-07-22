@@ -23,13 +23,6 @@ const globalForPrisma = globalThis as unknown as {
 export const prisma = globalForPrisma.prisma ??
   new PrismaClient({
     ...databaseConfiguration,
-    // Connection pool configuration
-    __internal: {
-      engine: {
-        connectionLimit: databaseConfig.poolSize,
-        poolTimeout: databaseConfig.connectionTimeout,
-      },
-    },
   });
 
 // Prevent multiple instances in development
@@ -203,8 +196,8 @@ export async function withQueryMetrics<T>(
     const result = await operation();
     const duration = Date.now() - startTime;
     
-    // Log slow queries
-    if (duration > env.SLOW_QUERY_THRESHOLD) {
+    // Log slow queries (threshold: 1000ms)
+    if (duration > 1000) {
       console.warn(`⚠️ Slow query detected: ${operationName} took ${duration}ms`);
     }
     

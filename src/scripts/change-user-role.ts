@@ -61,8 +61,7 @@ class RoleManager {
           isActive: true
         },
         data: {
-          isActive: false,
-          updatedAt: new Date()
+          isActive: false
         }
       });
 
@@ -194,8 +193,7 @@ class RoleManager {
       await prisma.userRole.update({
         where: { id: userRole.id },
         data: {
-          isActive: false,
-          updatedAt: new Date()
+          isActive: false
         }
       });
 

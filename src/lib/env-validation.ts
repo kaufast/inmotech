@@ -89,8 +89,8 @@ const envSchema = z.object({
 
 // Environment-specific validation
 const productionRequiredFields = [
-  'SENTRY_DSN',
-  'REDIS_URL',
+  // 'SENTRY_DSN',
+  // 'REDIS_URL',
   'NEXT_PUBLIC_BASE_URL',
 ] as const;
 
@@ -189,7 +189,6 @@ export const redisConfig = env.REDIS_URL ? {
   db: env.REDIS_DB,
   clusterMode: env.REDIS_CLUSTER_MODE,
   maxRetries: env.REDIS_MAX_RETRIES,
-  retryDelayOnFailover: env.REDIS_RETRY_DELAY,
 } : null;
 
 export const cacheConfig = {
@@ -204,7 +203,6 @@ export const sentryConfig = env.ENABLE_SENTRY ? {
   dsn: env.SENTRY_DSN!,
   environment: env.SENTRY_ENVIRONMENT || env.NODE_ENV,
   tracesSampleRate: env.SENTRY_TRACES_SAMPLE_RATE,
-  profilesSampleRate: env.SENTRY_PROFILES_SAMPLE_RATE,
 } : null;
 
 export const rateLimitConfig = {

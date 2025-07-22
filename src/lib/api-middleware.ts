@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateToken, extractToken, verifyUser } from './auth-server';
-import { rateLimit, RateLimitConfig } from './rate-limit';
+import { rateLimit } from './rate-limit';
 import { corsHeaders, CorsOptions } from './cors';
 
 export interface MiddlewareOptions {
   requireAuth?: boolean;
-  rateLimit?: RateLimitConfig | false;
+  rateLimit?: { windowMs?: number; max?: number } | false;
   cors?: CorsOptions | false;
 }
 

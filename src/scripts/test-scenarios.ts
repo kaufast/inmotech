@@ -251,12 +251,12 @@ class TestRunner {
       const investment = await prisma.investment.create({
         data: {
           userId: investorUser.id,
-          projectId: project.id,
+          opportunityId: project.id,
           amount: 10000,
           currency: 'EUR',
           status: 'CONFIRMED',
           paymentMethod: 'test',
-          confirmedAt: new Date()
+          investmentDate: new Date()
         }
       });
 
@@ -298,12 +298,12 @@ class TestRunner {
       const investment = await prisma.investment.create({
         data: {
           userId: investorUser.id,
-          projectId: projects[0].id,
+          opportunityId: projects[0].id,
           amount: 5000,
           currency: 'EUR',
           status: 'CONFIRMED',
           paymentMethod: 'test',
-          confirmedAt: new Date()
+          investmentDate: new Date()
         }
       });
 

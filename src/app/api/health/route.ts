@@ -78,10 +78,10 @@ export async function GET(request: NextRequest): Promise<NextResponse<HealthChec
 
     // Memory usage
     const memoryUsage = getMemoryUsage();
-    const memoryStatus = memoryUsage.percentage > 90 ? 'unhealthy' : 'healthy';
+    const memoryStatus: 'healthy' | 'unhealthy' = memoryUsage.percentage > 90 ? 'unhealthy' : 'healthy';
 
     // Auth configuration check
-    const authStatus = process.env.JWT_SECRET ? 'ok' : 'missing_config';
+    const authStatus: 'ok' | 'missing_config' = process.env.JWT_SECRET ? 'ok' : 'missing_config';
 
     // Process health check results
     const dbResult = databaseHealth.status === 'fulfilled' ? databaseHealth.value : { status: 'unhealthy' as const, error: 'Check failed' };

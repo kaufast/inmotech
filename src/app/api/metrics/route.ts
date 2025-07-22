@@ -161,7 +161,7 @@ async function getBusinessMetrics() {
   }
 }
 
-export async function GET(request: NextRequest): Promise<NextResponse<MetricsResponse>> {
+export async function GET(request: NextRequest) {
   try {
     // Check if metrics endpoint should be public (typically should be protected)
     const authHeader = request.headers.get('authorization');

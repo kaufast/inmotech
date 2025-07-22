@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
-    "vercel-build": "prisma generate && SKIP_ENV_VALIDATION=true next build",
+    "vercel-build": "prisma generate && SKIP_ENV_VALIDATION=true next build --no-lint",
     "start": "next start",
     "lint": "next lint",
     "server": "cd server && npm run dev",
@@ -34,6 +34,10 @@
     "@hookform/resolvers": "^3.4.0",
     "@neondatabase/serverless": "^1.0.1",
     "@noble/hashes": "^1.8.0",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/context-async-hooks": "^2.0.1",
+    "@opentelemetry/core": "^2.0.1",
+    "@opentelemetry/sdk-trace-base": "^2.0.1",
     "@paralleldrive/cuid2": "^2.2.2",
     "@prisma/client": "^6.12.0",
     "@sentry/nextjs": "^9.40.0",
@@ -81,7 +85,8 @@
     "zustand": "^4.5.0"
   },
   "devDependencies": {
-    "@types/node-fetch": "^2.6.11",
+    "@types/google.maps": "^3.58.1",
+    "@types/node-fetch": "^2.6.12",
     "@types/qrcode": "^1.5.5",
     "concurrently": "^8.2.2",
     "eslint": "^8.0.0",

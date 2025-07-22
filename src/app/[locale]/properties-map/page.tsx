@@ -115,7 +115,7 @@ export default function PropertiesMapPage() {
   // Map states
   const [mapCenter, setMapCenter] = useState({ lat: 40.4168, lng: -3.7038 }); // Madrid
   const [mapZoom, setMapZoom] = useState(10);
-  const [mapBounds, setMapBounds] = useState<google.maps.LatLngBounds | null>(null);
+  const [mapBounds, setMapBounds] = useState<any>(null);
 
   useEffect(() => {
     fetchProperties();
@@ -164,8 +164,12 @@ export default function PropertiesMapPage() {
     }
   };
 
-  const handlePropertySelect = (property: Property) => {
-    setSelectedProperty(property);
+  const handlePropertySelect = (property: any) => {
+    // Find the full property object from our state
+    const fullProperty = properties.find(p => p.id === property.id);
+    if (fullProperty) {
+      setSelectedProperty(fullProperty);
+    }
     // Optionally navigate to property details
     // router.push(`/properties/${property.id}`);
   };
@@ -575,13 +579,16 @@ function PropertyList({
   return (
     <div className="space-y-4">
       {properties.map((property) => (
-        <Card 
+        <div 
           key={property.id}
-          className={`hover:shadow-lg transition-shadow cursor-pointer ${
-            selectedProperty?.id === property.id ? 'ring-2 ring-blue-500' : ''
-          }`}
           onClick={() => onPropertySelect(property)}
+          className="cursor-pointer"
         >
+          <Card 
+            className={`hover:shadow-lg transition-shadow ${
+              selectedProperty?.id === property.id ? 'ring-2 ring-blue-500' : ''
+            }`}
+          >
           <CardContent className="p-4">
             <div className="flex gap-4">
               {/* Property Image */}
@@ -653,6 +660,7 @@ function PropertyList({
             </div>
           </CardContent>
         </Card>
+        </div>
       ))}
     </div>
   );

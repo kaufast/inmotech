@@ -14,6 +14,7 @@ const nextConfig = {
       '*': ['./server/**/*'],
     },
   },
+  optimizeFonts: false, // Disable font optimization to avoid Google Fonts timeout
   typescript: {
     ignoreBuildErrors: false,
   },

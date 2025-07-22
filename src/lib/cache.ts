@@ -69,10 +69,12 @@ export async function initializeRedis(): Promise<void> {
   }
 
   try {
+    const { url, password, db, clusterMode, maxRetries } = redisConfig;
     redis = new Redis({
-      ...redisConfig,
-      retryDelayOnFailover: redisConfig.retryDelayOnFailover,
-      maxRetriesPerRequest: redisConfig.maxRetries,
+      ...(url ? { url } : {}),
+      ...(password ? { password } : {}),
+      db,
+      maxRetriesPerRequest: maxRetries,
       lazyConnect: true,
       // Connection event handlers
       reconnectOnError: (err) => {
