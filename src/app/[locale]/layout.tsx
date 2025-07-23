@@ -4,6 +4,8 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { locales } from '@/lib/i18n';
+import { SecureAuthProvider } from '@/contexts/SecureAuthContext';
+import { Toaster } from 'react-hot-toast';
 import '../globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -108,10 +110,26 @@ export default async function LocaleLayout({
   const messages = await getMessages({ locale });
 
   return (
-    <NextIntlClientProvider messages={messages}>
-      <div className="min-h-screen bg-gray-50">
-        {children}
-      </div>
-    </NextIntlClientProvider>
+    <html lang={locale} className={inter.className}>
+      <body>
+        <NextIntlClientProvider messages={messages}>
+          <SecureAuthProvider>
+            <div className="min-h-screen bg-gray-50">
+              {children}
+            </div>
+            <Toaster 
+              position="top-right"
+              toastOptions={{
+                duration: 4000,
+                style: {
+                  background: '#363636',
+                  color: '#fff',
+                },
+              }}
+            />
+          </SecureAuthProvider>
+        </NextIntlClientProvider>
+      </body>
+    </html>
   );
 }

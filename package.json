@@ -4,7 +4,7 @@
   "description": "InmoTech - Real estate technology and investment platform",
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && SKIP_ENV_VALIDATION=true next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "server": "cd server && npm run dev",
