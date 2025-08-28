@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { neon } from '@neondatabase/serverless';
+import { createClient } from '@supabase/supabase-js';
 import { generateSecureToken, verifyPassword, createSecureJWT } from '@/lib/edge-crypto';
 import { createId } from '@paralleldrive/cuid2';
 import { sendAuditLog, extractClientInfo } from '@/lib/edge-audit';
@@ -26,10 +26,17 @@ const extractBrowser = (userAgent: string): string => {
   return 'Unknown';
 };
 
-// Get database URL from environment
-const DATABASE_URL = process.env.DATABASE_URL || "";
+// Get Supabase configuration from environment
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
-// This insecure function has been replaced with createSecureJWT from edge-crypto.ts
+// Create Supabase client
+const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -45,9 +52,9 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Check if DATABASE_URL is available
-    if (!DATABASE_URL) {
-      console.error('DATABASE_URL not found in environment');
+    // Check if Supabase configuration is available
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('Supabase configuration not found in environment');
       return new Response(JSON.stringify({
         error: 'Database configuration error'
       }), {
@@ -56,31 +63,38 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Create database connection
-    const sql = neon(DATABASE_URL);
-
     // Get user from database with roles and permissions
-    const result = await sql`
-      SELECT 
-        u.id, 
-        u.email, 
-        u.password_hash,
-        u.first_name as "firstName",
-        u.last_name as "lastName",
-        u.is_active as "isActive",
-        u.is_verified as "isVerified",
-        u.is_admin as "isAdmin",
-        u.kyc_status as "kycStatus",
-        u.login_attempts as "loginAttempts",
-        u.locked_until as "lockedUntil",
-        u.two_factor_enabled,
-        u.two_factor_secret
-      FROM users u
-      WHERE u.email = ${email.toLowerCase()}
-      LIMIT 1
-    `;
+    const { data: users, error: userError } = await supabase
+      .from('users')
+      .select(`
+        id, 
+        email, 
+        password_hash,
+        first_name,
+        last_name,
+        is_active,
+        is_verified,
+        is_admin,
+        kyc_status,
+        login_attempts,
+        locked_until,
+        two_factor_enabled,
+        two_factor_secret
+      `)
+      .eq('email', email.toLowerCase())
+      .limit(1);
     
-    const user = result[0];
+    if (userError) {
+      console.error('Database error:', userError);
+      return new Response(JSON.stringify({
+        error: 'Database error'
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    
+    const user = users?.[0];
     
     if (!user) {
       return new Response(JSON.stringify({
@@ -92,49 +106,64 @@ export async function POST(request: NextRequest) {
     }
 
     // Get user roles and permissions
-    const rolesResult = await sql`
-      SELECT 
-        r.name as "roleName",
-        r.description as "roleDescription",
-        p.name as "permissionName",
-        p.resource,
-        p.action,
-        p.description as "permissionDescription"
-      FROM user_roles ur
-      INNER JOIN roles r ON ur.role_id = r.id
-      INNER JOIN role_permissions rp ON r.id = rp.role_id
-      INNER JOIN permissions p ON rp.permission_id = p.id
-      WHERE ur.user_id = ${user.id} 
-        AND ur.is_active = true
-        AND r.is_active = true
-      ORDER BY r.name, p.name
-    `;
+    const { data: rolesResult, error: rolesError } = await supabase
+      .from('user_roles')
+      .select(`
+        roles!inner(
+          name,
+          description,
+          is_active,
+          role_permissions!inner(
+            permissions!inner(
+              name,
+              resource,
+              action,
+              description
+            )
+          )
+        )
+      `)
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+      .eq('roles.is_active', true);
+
+    if (rolesError) {
+      console.error('Roles query error:', rolesError);
+    }
 
     // Process roles and permissions
     const roleMap = new Map();
-    rolesResult.forEach(row => {
-      if (!roleMap.has(row.roleName)) {
-        roleMap.set(row.roleName, {
-          name: row.roleName,
-          description: row.roleDescription,
-          permissions: []
+    const allPermissions: string[] = [];
+    
+    if (rolesResult) {
+      rolesResult.forEach(userRole => {
+        const role = userRole.roles as any;
+        if (role && !roleMap.has(role.name)) {
+          roleMap.set(role.name, {
+            name: role.name,
+            description: role.description,
+            permissions: []
+          });
+        }
+        
+        const roleData = roleMap.get(role.name);
+        role?.role_permissions?.forEach(rp => {
+          const permission = rp.permissions;
+          roleData.permissions.push({
+            name: permission.name,
+            resource: permission.resource,
+            action: permission.action,
+            description: permission.description
+          });
+          allPermissions.push(permission.name);
         });
-      }
-      
-      const role = roleMap.get(row.roleName);
-      role.permissions.push({
-        name: row.permissionName,
-        resource: row.resource,
-        action: row.action,
-        description: row.permissionDescription
       });
-    });
+    }
 
     const userRoles = Array.from(roleMap.values());
-    const allPermissions = rolesResult.map(row => row.permissionName);
 
     // Check if account is active
-    if (!user.isActive) {
+    if (!user.is_active) {
       return new Response(JSON.stringify({
         error: 'Account is deactivated'
       }), {
@@ -145,8 +174,9 @@ export async function POST(request: NextRequest) {
 
     // Check if account is temporarily locked
     const now = new Date();
-    if (user.lockedUntil && user.lockedUntil > now) {
-      const lockDuration = Math.ceil((user.lockedUntil.getTime() - now.getTime()) / 60000);
+    const lockedUntil = user.locked_until ? new Date(user.locked_until) : null;
+    if (lockedUntil && lockedUntil > now) {
+      const lockDuration = Math.ceil((lockedUntil.getTime() - now.getTime()) / 60000);
       
       // Log blocked login attempt
       const clientInfo = extractClientInfo(request);
@@ -158,7 +188,7 @@ export async function POST(request: NextRequest) {
         metadata: {
           email,
           reason: 'account_locked',
-          lockedUntil: user.lockedUntil.toISOString(),
+          lockedUntil: lockedUntil.toISOString(),
           remainingMinutes: lockDuration
         },
         ...clientInfo
@@ -179,18 +209,22 @@ export async function POST(request: NextRequest) {
       const maxAttempts = 5;
       const lockoutDuration = 15; // minutes
       
-      const newAttempts = (user.loginAttempts || 0) + 1;
+      const newAttempts = (user.login_attempts || 0) + 1;
       const lockUntil = newAttempts >= maxAttempts 
         ? new Date(now.getTime() + lockoutDuration * 60 * 1000)
         : null;
 
-      await sql`
-        UPDATE users 
-        SET 
-          login_attempts = ${newAttempts},
-          locked_until = ${lockUntil}
-        WHERE id = ${user.id}
-      `;
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({
+          login_attempts: newAttempts,
+          locked_until: lockUntil?.toISOString()
+        })
+        .eq('id', user.id);
+
+      if (updateError) {
+        console.error('Failed to update login attempts:', updateError);
+      }
 
       const remainingAttempts = maxAttempts - newAttempts;
       let errorMessage = 'Invalid email or password';
@@ -238,14 +272,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Reset login attempts on successful login
-    if (user.loginAttempts > 0 || user.lockedUntil) {
-      await sql`
-        UPDATE users 
-        SET 
-          login_attempts = 0,
-          locked_until = NULL
-        WHERE id = ${user.id}
-      `;
+    if (user.login_attempts > 0 || user.locked_until) {
+      const { error: resetError } = await supabase
+        .from('users')
+        .update({
+          login_attempts: 0,
+          locked_until: null
+        })
+        .eq('id', user.id);
+
+      if (resetError) {
+        console.error('Failed to reset login attempts:', resetError);
+      }
     }
 
     // Generate secure tokens with HMAC-SHA256 signatures including roles
@@ -260,15 +298,18 @@ export async function POST(request: NextRequest) {
 
     // Store refresh token in database (30 days expiry)
     const refreshTokenId = createId();
-    await sql`
-      INSERT INTO refresh_tokens (id, user_id, token, expires_at)
-      VALUES (
-        ${refreshTokenId},
-        ${user.id}, 
-        ${refreshToken}, 
-        ${new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)}
-      )
-    `;
+    const { error: tokenError } = await supabase
+      .from('refresh_tokens')
+      .insert({
+        id: refreshTokenId,
+        user_id: user.id,
+        token: refreshToken,
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+      });
+
+    if (tokenError) {
+      console.error('Failed to store refresh token:', tokenError);
+    }
 
     // Create a tracked session for this login
     const sessionToken = generateSecureToken();
@@ -289,26 +330,38 @@ export async function POST(request: NextRequest) {
     };
 
     // Store the session
-    await sql`
-      INSERT INTO user_sessions (
-        id, user_id, session_token, device_info, ip_address, 
-        user_agent, last_activity, is_active, expires_at, created_at
-      ) VALUES (
-        ${sessionId}, ${user.id}, ${sessionToken}, ${JSON.stringify(deviceInfo)}, 
-        ${ipAddress}, ${userAgent}, ${new Date()}, true, 
-        ${new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)}, ${new Date()}
-      )
-    `;
+    const { error: sessionError } = await supabase
+      .from('user_sessions')
+      .insert({
+        id: sessionId,
+        user_id: user.id,
+        session_token: sessionToken,
+        device_info: deviceInfo,
+        ip_address: ipAddress,
+        user_agent: userAgent,
+        last_activity: new Date().toISOString(),
+        is_active: true,
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        created_at: new Date().toISOString()
+      });
+
+    if (sessionError) {
+      console.error('Failed to create session:', sessionError);
+    }
 
     // Update last login and reset failed attempts
-    await sql`
-      UPDATE users 
-      SET 
-        last_login = ${new Date()},
-        login_attempts = 0,
-        locked_until = NULL
-      WHERE id = ${user.id}
-    `;
+    const { error: loginUpdateError } = await supabase
+      .from('users')
+      .update({
+        last_login: new Date().toISOString(),
+        login_attempts: 0,
+        locked_until: null
+      })
+      .eq('id', user.id);
+
+    if (loginUpdateError) {
+      console.error('Failed to update last login:', loginUpdateError);
+    }
 
     // Log successful login
     const clientInfo = extractClientInfo(request);
@@ -332,11 +385,11 @@ export async function POST(request: NextRequest) {
       user: {
         id: user.id,
         email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        isVerified: user.isVerified,
-        isAdmin: user.isAdmin,
-        kycStatus: user.kycStatus,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        isVerified: user.is_verified,
+        isAdmin: user.is_admin,
+        kycStatus: user.kyc_status,
         roles: userRoles,
         permissions: allPermissions
       },
