@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
         }
         
         const roleData = roleMap.get(role.name);
-        role?.role_permissions?.forEach(rp => {
+        role?.role_permissions?.forEach((rp: any) => {
           const permission = rp.permissions;
           roleData.permissions.push({
             name: permission.name,
