@@ -374,7 +374,7 @@ export async function POST(request: NextRequest) {
         sessionId,
         deviceInfo,
         roles: userRoles.map(r => r.name),
-        isAdmin: user.isAdmin
+        isAdmin: user.is_admin
       },
       ...clientInfo
     });
