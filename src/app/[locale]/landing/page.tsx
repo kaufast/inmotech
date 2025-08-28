@@ -1,18 +1,44 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
-  TrendingUp
+  TrendingUp, Palette
 } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import WhiteLandingPage from '@/components/landing/WhiteLandingPage';
 
 export default function LandingPage() {
   const t = useTranslations();
   const pathname = usePathname();
   const locale = pathname?.split('/')[1] || 'en-GB';
+  const [isWhiteTheme, setIsWhiteTheme] = useState(false);
+
+  // If white theme is selected, render the white landing page
+  if (isWhiteTheme) {
+    return (
+      <div className="relative">
+        {/* Theme Toggle - Fixed Position */}
+        <div className="fixed top-20 right-8 z-50">
+          <button
+            onClick={() => setIsWhiteTheme(!isWhiteTheme)}
+            className="p-3 rounded-2xl transition-all duration-300 hover:scale-105"
+            style={{
+              background: '#e0e0e0',
+              boxShadow: '6px 6px 20px #bebebe, -6x -6px 20px #ffffff'
+            }}
+            title="Switch to Dark Theme"
+          >
+            <Palette className="w-5 h-5 text-gray-800" />
+          </button>
+        </div>
+        <WhiteLandingPage />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-black text-white overflow-hidden relative">
       {/* Background Gradient Effects */}
@@ -38,6 +64,17 @@ export default function LandingPage() {
         {/* Language Switcher - Top Right */}
         <div className="fixed top-8 right-8 z-50">
           <LanguageSwitcher />
+        </div>
+
+        {/* Theme Toggle - Below Language Switcher */}
+        <div className="fixed top-20 right-8 z-50">
+          <button
+            onClick={() => setIsWhiteTheme(!isWhiteTheme)}
+            className="bg-white/10 backdrop-blur-sm border border-white/20 p-3 rounded-2xl hover:bg-white/20 transition-all duration-300"
+            title="Switch to White Theme"
+          >
+            <Palette className="w-5 h-5 text-white" />
+          </button>
         </div>
 
         {/* Hero Section */}
@@ -621,31 +658,42 @@ export default function LandingPage() {
         </section>
 
         {/* Bottom Navigation with AI Siri Colors */}
-        <section className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
-          <div className="bg-black/80 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl">
-            <div className="flex items-center px-8 py-4">
-              <div className="flex items-center space-x-3 mr-8">
+        <section className="fixed bottom-4 md:bottom-8 left-1/2 transform -translate-x-1/2 z-50 px-4 w-full max-w-none md:max-w-fit md:px-0 md:w-auto">
+          <div className="bg-black/80 backdrop-blur-xl rounded-2xl md:rounded-3xl border border-white/10 shadow-2xl">
+            <div className="flex items-center justify-between md:justify-start px-4 md:px-8 py-3 md:py-4">
+              {/* Logo/Share section - hidden on mobile to save space */}
+              <div className="hidden md:flex items-center space-x-3 mr-8">
                 <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{backgroundImage: 'linear-gradient(108deg, rgb(8, 148, 255), rgb(201, 89, 221) 34%, rgb(255, 46, 84) 68%, rgb(255, 144, 4))'}}>
                   <TrendingUp className="w-4 h-4 text-white" />
                 </div>
                 <span className="text-white font-medium text-sm">{t('landing.share')}</span>
               </div>
               
-              <div className="flex items-center space-x-8 mr-8">
+              {/* Navigation links - hidden on mobile */}
+              <div className="hidden md:flex items-center space-x-8 mr-8">
                 <a href="#about" className="text-gray-300 hover:text-white transition-all duration-300 font-medium text-sm">{t('navigation.about')}</a>
                 <a href="#whitepaper" className="text-gray-300 hover:text-white transition-all duration-300 font-medium text-sm">{t('navigation.whitepaper')}</a>
               </div>
               
-              <div className="flex items-center space-x-3">
+              {/* Mobile logo/share section - only visible on mobile */}
+              <div className="flex md:hidden items-center space-x-2">
+                <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{backgroundImage: 'linear-gradient(108deg, rgb(8, 148, 255), rgb(201, 89, 221) 34%, rgb(255, 46, 84) 68%, rgb(255, 144, 4))'}}>
+                  <TrendingUp className="w-3 h-3 text-white" />
+                </div>
+                <span className="text-white font-medium text-xs">{t('landing.share')}</span>
+              </div>
+              
+              {/* Action buttons */}
+              <div className="flex items-center space-x-2 md:space-x-3">
                 <div className="relative">
                   <Link href={`/${locale}/register`}>
-                    <button className="conic-border-button bg-black text-white px-6 py-2.5 rounded-2xl font-semibold text-sm hover:bg-gray-900 relative z-10">
+                    <button className="conic-border-button bg-black text-white px-4 md:px-6 py-2 md:py-2.5 rounded-xl md:rounded-2xl font-semibold text-xs md:text-sm hover:bg-gray-900 relative z-10">
                       {t('navigation.register')}
                     </button>
                   </Link>
                 </div>
                 <Link href={`/${locale}/login`}>
-                  <button className="bg-white text-black px-6 py-2.5 rounded-2xl font-semibold text-sm transition-all duration-300 hover:bg-gray-100">
+                  <button className="bg-white text-black px-4 md:px-6 py-2 md:py-2.5 rounded-xl md:rounded-2xl font-semibold text-xs md:text-sm transition-all duration-300 hover:bg-gray-100">
                     {t('navigation.login')}
                   </button>
                 </Link>
